@@ -1,56 +1,76 @@
 Attribute VB_Name = "Module21"
-Sub ÀüÃ¤³ÎÁÖ¹®¸®½ºÆ®()
+
+''í—¤ë” ì´ë¦„ìœ¼ë¡œ ì¸ë±ìŠ¤ êµ¬í•˜ëŠ” í•¨ìˆ˜. (ì—´ì˜ ì¸ë±ìŠ¤ë¡œ ì§€ì •í•˜ë‹ˆê¹Œ, ì—´ ìˆœì„œê°€ ë‹¬ë¼ì§€ê±°ë‚˜ ìƒˆë¡œìš´ ì—´ ì¶”ê°€í•  ë•Œ ì²˜ìŒë¶€í„° ë‹¤ ê³ ì¹˜ëŠ”ê²Œ ë²ˆê±°ë¡œì›Œì„œ ë§Œë“¦)
+Function FindColumnIndex(headerName As String, Optional resultType As Integer) As Variant
+    Dim lastCol As Long
+    Dim headerRow As Long
+    headerRow = 1 ' í—¤ë”ê°€ ìˆëŠ” í–‰ ë²ˆí˜¸ë¥¼ ì„¤ì •í•©ë‹ˆë‹¤
+    
+    lastCol = Cells(headerRow, Columns.count).End(xlToLeft).Column
+    
+    Dim col As Long
+    For col = 1 To lastCol
+        If Cells(headerRow, col).Value = headerName Then
+           If resultType = 1 Then
+                FindColumnIndex = ColumnNumberToLetter(col)
+            Else
+                FindColumnIndex = col
+            End If
+            Exit Function
+        End If
+    Next col
+    
+    ' í—¤ë”ë¥¼ ì°¾ì§€ ëª»í–ˆì„ ê²½ìš° -1 ë°˜í™˜
+    FindColumnIndex = -1
+End Function
+''ì—‘ì…€ì˜ ì—´ ë²ˆí˜¸ë¥¼ ì•ŒíŒŒë²³ ë¬¸ìë¡œ ë³€í™˜í•˜ëŠ” í•¨ìˆ˜ì…ë‹ˆë‹¤.
+Function ColumnNumberToLetter(columnNumber As Long) As String
+    Dim columnLetter As String
+    columnLetter = ""
+    
+    While columnNumber > 0
+        Dim modulo As Long
+        modulo = (columnNumber - 1) Mod 26
+        columnLetter = Chr(modulo + 65) & columnLetter
+        columnNumber = Int((columnNumber - modulo) / 26)
+    Wend
+    
+    ColumnNumberToLetter = columnLetter
+End Function
+
+Sub ì „ì±„ë„ì£¼ë¬¸ë¦¬ìŠ¤íŠ¸()
 '
-' ÀüÃ¤³ÎÁÖ¹®¸®½ºÆ® ¸ÅÅ©·Î
+' ì „ì±„ë„ì£¼ë¬¸ë¦¬ìŠ¤íŠ¸ ë§¤í¬ë¡œ v2.0.0
 '
 
 '
+''ì˜ ëª¨ë¥´ê² ìœ¼ë©´ F8ë¡œ í•œì¤„ì”© ì‹¤í–‰í•´ë³´ê¸°!!
 
-''Àß ¸ğ¸£°ÚÀ¸¸é F8·Î ÇÑÁÙ¾¿ ½ÇÇàÇØº¸±â!!
-
-    ''º¯¼ö¼±¾ğ ->Dim ¹®Àº º¯¼ö¸¦ ¼±¾ğÇÏ´Â µ¥ »ç¿ëµÊ. »ı·«ÇØµµ º¯¼ö¸¦ ¾Ï½ÃÀûÀ¸·Î ¼±¾ğÇÏ°Ô µÇÁö¸¸, ÀÌ´Â °¡µ¶¼ºÀÌ³ª ÄÚµå À¯Áöº¸¼ö¼º Ãø¸é¿¡¼­ ¹Ù¶÷Á÷ÇÏÁö ¾Ê½À´Ï´Ù.
+    ''ë³€ìˆ˜ì„ ì–¸ ->Dim ë¬¸ì€ ë³€ìˆ˜ë¥¼ ì„ ì–¸í•˜ëŠ” ë° ì‚¬ìš©ë¨. ìƒëµí•´ë„ ë³€ìˆ˜ë¥¼ ì•”ì‹œì ìœ¼ë¡œ ì„ ì–¸í•˜ê²Œ ë˜ì§€ë§Œ, ì´ëŠ” ê°€ë…ì„±ì´ë‚˜ ì½”ë“œ ìœ ì§€ë³´ìˆ˜ì„± ì¸¡ë©´ì—ì„œ ë°”ëŒì§í•˜ì§€ ì•ŠìŠµë‹ˆë‹¤.
     Dim lastRow As Long
      
-    ''°¡Àå ¸¶Áö¸·Çà Ã£±â.
+    ''ê°€ì¥ ë§ˆì§€ë§‰í–‰ ì°¾ê¸°.
     lastRow = ActiveSheet.Cells(ActiveSheet.Rows.count, "A").End(xlUp).row
     
     
     
-    ''''¿­ ÇØ´õ¸í ¹Ù²Ù±â
-    Cells.Replace What:="ÁÖ¹®ÀÚ¸í", Replacement:="ÁÖ¹®ÀÚ", LookAt:=xlPart, _
-        SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, _
-        ReplaceFormat:=False
-    Cells.Replace What:="»óÇ°¸í(ÇÑ±¹¾î ¼îÇÎ¸ô)", Replacement:="»óÇ°¸í", LookAt:=xlPart, _
-        SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, _
-        ReplaceFormat:=False
-    Cells.Replace What:="»óÇ°¿É¼Ç", Replacement:="¿É¼Ç", LookAt:=xlPart, _
-        SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, _
-        ReplaceFormat:=False
-    Cells.Replace What:="¿É¼Ç+ÆÇ¸Å°¡", Replacement:="°¡°İ", LookAt:=xlPart, _
-        SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, _
-        ReplaceFormat:=False
-    Cells.Replace What:="¼ö·ÉÀÎ ¿ìÆí¹øÈ£", Replacement:="¿ìÆí¹øÈ£", LookAt:=xlPart, _
-        SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, _
-        ReplaceFormat:=False
-    Cells.Replace What:="¼ö·ÉÀÎ ÁÖ¼Ò(ÀüÃ¼)", Replacement:="ÁÖ¼Ò", LookAt:=xlPart, _
-        SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, _
-        ReplaceFormat:=False
-    Cells.Replace What:="ÁÖ¹®¼­Ãß°¡Ç×¸ñ01_»çÀºÇ° ¼±ÅÃ (°øÅëÀÔ·Â»çÇ×)", Replacement:="»çÀºÇ°", _
-        LookAt:=xlPart, SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:= _
-        False, ReplaceFormat:=False
+    ''''ì—´ í•´ë”ëª… ë°”ê¾¸ê¸°
+    Cells.Replace What:="ì£¼ë¬¸ìëª…", Replacement:="ì£¼ë¬¸ì", LookAt:=xlPart, SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, ReplaceFormat:=False
+    Cells.Replace What:="ìƒí’ˆëª…(í•œêµ­ì–´ ì‡¼í•‘ëª°)", Replacement:="ìƒí’ˆëª…", LookAt:=xlPart, SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, ReplaceFormat:=False
+    Cells.Replace What:="ìƒí’ˆì˜µì…˜", Replacement:="ì˜µì…˜", LookAt:=xlPart, SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, ReplaceFormat:=False
+    Cells.Replace What:="ì˜µì…˜+íŒë§¤ê°€", Replacement:="ê°€ê²©", LookAt:=xlPart, SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, ReplaceFormat:=False
+    Cells.Replace What:="ìˆ˜ë ¹ì¸ ìš°í¸ë²ˆí˜¸", Replacement:="ìš°í¸ë²ˆí˜¸", LookAt:=xlPart, SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, ReplaceFormat:=False
+    Cells.Replace What:="ìˆ˜ë ¹ì¸ ì£¼ì†Œ(ì „ì²´)", Replacement:="ì£¼ì†Œ", LookAt:=xlPart, SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, ReplaceFormat:=False
+    Cells.Replace What:="ì£¼ë¬¸ì„œì¶”ê°€í•­ëª©01_ì‚¬ì€í’ˆ ì„ íƒ (ê³µí†µì…ë ¥ì‚¬í•­)", Replacement:="ì‚¬ì€í’ˆ", LookAt:=xlPart, SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, ReplaceFormat:=False
         
     Columns("I:I").Select
-    Selection.Replace What:="°­¾ÆÁö¿ë", Replacement:="µ¶", LookAt:=xlPart, _
-        SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, _
-        ReplaceFormat:=False
-    Selection.Replace What:="°í¾çÀÌ¿ë", Replacement:="Ä¹", LookAt:=xlPart, _
-        SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, _
-        ReplaceFormat:=False
+    Selection.Replace What:="ê°•ì•„ì§€ìš©", Replacement:="ë…", LookAt:=xlPart, SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, ReplaceFormat:=False
+    Selection.Replace What:="ê³ ì–‘ì´ìš©", Replacement:="ìº£", LookAt:=xlPart, SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, ReplaceFormat:=False
     
-    '''' ÁÖ¹®Ã¤³Îº°·Î ÁÖ¹®ÀÚ ÀÌ¸§ ¼¿¿¡ »öÃ¤¿ì±â. Ä«Æä24ÁÖ¹®Àº Ã¤¿ì±â ¾øÀ½.
-    Columns("C:C").Select
+    '''' ì£¼ë¬¸ì±„ë„ë³„ë¡œ ì£¼ë¬¸ì ì´ë¦„ ì…€ì— ìƒ‰ì±„ìš°ê¸°. ì¹´í˜24ì£¼ë¬¸ì€ ì±„ìš°ê¸° ì—†ìŒ.
+    Columns(FindColumnIndex("ì£¼ë¬¸ì")).Select
     Selection.FormatConditions.Add Type:=xlExpression, Formula1:= _
-        "=SEARCH(""Ä«Ä«¿ÀÅå ½ºÅä¾î"", $A1)"
+        "=SEARCH(""ì¹´ì¹´ì˜¤í†¡ ìŠ¤í† ì–´"", $A1)"
     Selection.FormatConditions(Selection.FormatConditions.count).SetFirstPriority
     With Selection.FormatConditions(1).Interior
         .PatternColorIndex = xlAutomatic
@@ -60,7 +80,7 @@ Sub ÀüÃ¤³ÎÁÖ¹®¸®½ºÆ®()
     Selection.FormatConditions(1).StopIfTrue = False
     
     Selection.FormatConditions.Add Type:=xlExpression, Formula1:= _
-        "=SEARCH(""½º¸¶Æ®½ºÅä¾î"", $A1)"
+        "=SEARCH(""ìŠ¤ë§ˆíŠ¸ìŠ¤í† ì–´"", $A1)"
     Selection.FormatConditions(Selection.FormatConditions.count).SetFirstPriority
     With Selection.FormatConditions(1).Interior
         .PatternColorIndex = xlAutomatic
@@ -69,7 +89,7 @@ Sub ÀüÃ¤³ÎÁÖ¹®¸®½ºÆ®()
     End With
     Selection.FormatConditions(1).StopIfTrue = False
     
-    Selection.FormatConditions.Add Type:=xlExpression, Formula1:="=$A1=""ÄíÆÎ"""
+    Selection.FormatConditions.Add Type:=xlExpression, Formula1:="=$A1=""ì¿ íŒ¡"""
     Selection.FormatConditions(Selection.FormatConditions.count).SetFirstPriority
     With Selection.FormatConditions(1).Interior
         .PatternColorIndex = xlAutomatic
@@ -79,48 +99,35 @@ Sub ÀüÃ¤³ÎÁÖ¹®¸®½ºÆ®()
     Selection.FormatConditions(1).StopIfTrue = False
     
     
-    ''''L¿­ ¿À¸¥ÂÊ¿¡ ¿­ »ğÀÔÇØ¼­ ¹Ú½º¿­ Ãß°¡.
-    Range("N1").Select
+    ''''ì¤‘ëŸ‰ì—´ ì™¼ìª½ì— ì—´ ì‚½ì…í•´ì„œ ë°•ìŠ¤ì—´ ì¶”ê°€.
+    Cells(1, FindColumnIndex("ì¤‘ëŸ‰")).Select
     Selection.EntireColumn.Insert , CopyOrigin:=xlFormatFromLeftOrAbove
-    Range("N1").Select
-    ActiveCell.FormulaR1C1 = "¹Ú½º"
-    Columns("N:N").Select
-    Selection.ColumnWidth = 3
+    Cells(1, FindColumnIndex("ì¤‘ëŸ‰") - 1).Value = "ë°•ìŠ¤"
+    Columns(FindColumnIndex("ë°•ìŠ¤")).ColumnWidth = 3.2
+    
+    ''ê° ì—´ì˜ ë„ˆë¹„ ì¡°ì ˆ
+    Columns(FindColumnIndex("ë§¤ì¶œê²½ë¡œ")).ColumnWidth = 0
+    Columns(FindColumnIndex("ì£¼ë¬¸ë²ˆí˜¸")).ColumnWidth = 8.13
+    Columns(FindColumnIndex("ì£¼ë¬¸ì")).ColumnWidth = 6
+    Columns(FindColumnIndex("ë¸Œëœë“œ")).ColumnWidth = 0
+    Columns(FindColumnIndex("ìƒí’ˆëª…")).ColumnWidth = 30
+    Columns(FindColumnIndex("ì˜µì…˜")).ColumnWidth = 9
+    Columns(FindColumnIndex("ìˆ˜ëŸ‰")).ColumnWidth = 3 ''ì„¸ìë¦¬ìˆ˜ ë³´ì´ê¸°ìœ„í•´
+    Columns(FindColumnIndex("ìˆ˜ë ¹ì¸")).ColumnWidth = 6
+    Columns(FindColumnIndex("ì‚¬ì€í’ˆ")).ColumnWidth = 4
+    Columns(FindColumnIndex("ê°€ê²©")).ColumnWidth = 8
+    Columns(FindColumnIndex("ì£¼ë¬¸ ìƒíƒœ")).ColumnWidth = 0
+    Columns(FindColumnIndex("ì£¼ì†Œ")).ColumnWidth = 30
+    Columns(FindColumnIndex("ë°°ì†¡ë©”ì‹œì§€")).ColumnWidth = 13
+ '   Columns(FindColumnIndex("ìƒí’ˆëª…(ê´€ë¦¬ìš©)")).ColumnWidth = 20
     
     
-    ''°¢ ¿­ÀÇ ³Êºñ Á¶Àı
-    Columns("A:A").Select
-    Selection.ColumnWidth = 0
-    Columns("B:B").Select
-    Selection.ColumnWidth = 8.13
-    Columns("C:C").Select
-    Selection.ColumnWidth = 6
-    Columns("D:D").Select
-    Selection.ColumnWidth = 0
-    Columns("E:E").Select
-    Selection.ColumnWidth = 30
-    Columns("F:F").Select
-    Selection.ColumnWidth = 9
-    Columns("G:G").Select
-    Selection.ColumnWidth = 3 ''¼¼ÀÚ¸®¼ö º¸ÀÌ·Á¸é 3Àº µÇ¾ßÇÔ.
-    Columns("H:H").Select
-    Selection.ColumnWidth = 6
-    Columns("I:I").Select
-    Selection.ColumnWidth = 4
-    Columns("L:L").Select
-    Selection.ColumnWidth = 30
-    Columns("M:M").Select
-    Selection.ColumnWidth = 13
-    Columns("J:J").Select
-    Selection.ColumnWidth = 8
-    
-    
-    ''°¡°İ¿¡ , ºÙÀÌ±â
-    Columns("J:J").Select
+    ''ê°€ê²©ì— , ë¶™ì´ê¸°
+    Columns(FindColumnIndex("ê°€ê²©")).Select
     Selection.Style = "Comma [0]"
     Cells.Select
     
-    ''Çà³ôÀÌ ÀÚµ¿¸ÂÃã
+    ''í–‰ë†’ì´ ìë™ë§ì¶¤
     Range("B1").Activate
     With Selection
         .HorizontalAlignment = xlGeneral
@@ -134,8 +141,8 @@ Sub ÀüÃ¤³ÎÁÖ¹®¸®½ºÆ®()
         .MergeCells = False
     End With
     
-    ''''¼ö·® 2°³ÀÌ»óÀÎ Ç×¸ñ »¡°£»öÀ¸·Î Ã¤¿ì±â
-    Range("G2").Select
+    ''''ìˆ˜ëŸ‰ 2ê°œì´ìƒì¸ í•­ëª© ë¹¨ê°„ìƒ‰ìœ¼ë¡œ ì±„ìš°ê¸°
+    ActiveSheet.Cells(2, FindColumnIndex("ìˆ˜ëŸ‰")).Select
     Range(Selection, Selection.End(xlDown)).Select
     Selection.FormatConditions.Add Type:=xlCellValue, Operator:=xlGreaterEqual, Formula1:="2"
     Selection.FormatConditions(Selection.FormatConditions.count).SetFirstPriority
@@ -146,10 +153,15 @@ Sub ÀüÃ¤³ÎÁÖ¹®¸®½ºÆ®()
     End With
     Selection.FormatConditions(1).StopIfTrue = False
   
-    '''2°³ÀÌ»óÀÇ »óÇ° ÁÖ¹® ½Ã ÁÖ¹®¹øÈ£ È¸»öÀ¸·Î Ã¤¿ò
-    Columns("B:B").Select
-    Selection.FormatConditions.Add Type:=xlExpression, Formula1:= _
-        "=COUNTIF($B:$B, $B1) > 1"
+    '''2ê°œì´ìƒì˜ ìƒí’ˆ ì£¼ë¬¸ ì‹œ ì£¼ë¬¸ë²ˆí˜¸ íšŒìƒ‰ìœ¼ë¡œ ì±„ì›€
+    Columns(FindColumnIndex("ì£¼ë¬¸ë²ˆí˜¸")).Select
+    Dim colLetter As String
+    colLetter = "$" & FindColumnIndex("ì£¼ë¬¸ë²ˆí˜¸", 1)
+   ' Selection.FormatConditions.Add Type:=xlExpression, Formula1:="=COUNTIF($B:$B, $B1) > 1"
+
+     Selection.FormatConditions.Add Type:=xlExpression, Formula1:= _
+        "=COUNTIF(" & colLetter & ":" & colLetter & ", " & colLetter & "1) > 1"
+        
     Selection.FormatConditions(Selection.FormatConditions.count).SetFirstPriority
     With Selection.FormatConditions(1).Interior
         .PatternColorIndex = xlAutomatic
@@ -157,19 +169,19 @@ Sub ÀüÃ¤³ÎÁÖ¹®¸®½ºÆ®()
         .TintAndShade = 0
     End With
     Selection.FormatConditions(1).StopIfTrue = False
-    Range("B1").Select
+   ' Range("B1").Select
     ActiveWindow.View = xlPageLayoutView
 
     
-    ''''½ÃÆ® ÀÌ¸§¹Ù²Ù±â
-    ActiveSheet.Name = "ÁÖ¹®¸®½ºÆ®"
+    ''''ì‹œíŠ¸ ì´ë¦„ë°”ê¾¸ê¸°
+    ActiveSheet.Name = "ì£¼ë¬¸ë¦¬ìŠ¤íŠ¸"
     
-    ''''ÇÁ¸°Æ® ¼³Á¤ ½ÃÀÛ
-    Sheets("ÁÖ¹®¸®½ºÆ®").Select
+    ''''í”„ë¦°íŠ¸ ì„¤ì • ì‹œì‘
+    Sheets("ì£¼ë¬¸ë¦¬ìŠ¤íŠ¸").Select
         Application.CutCopyMode = False
     Application.PrintCommunication = False
     With ActiveSheet.PageSetup
-        .PrintTitleRows = "$1:$1" ''1ÇàÀ» ¹İº¹ÇØ¼­ ÇÁ¸°Æ®ÇÏ±â
+        .PrintTitleRows = "$1:$1" ''1í–‰ì„ ë°˜ë³µí•´ì„œ í”„ë¦°íŠ¸í•˜ê¸°
         .PrintTitleColumns = ""
     End With
     Application.PrintCommunication = True
@@ -177,7 +189,7 @@ Sub ÀüÃ¤³ÎÁÖ¹®¸®½ºÆ®()
     Application.PrintCommunication = False
     With ActiveSheet.PageSetup
         .LeftHeader = "&D &T"
-        .CenterHeader = "ÀüÃ¤³Î ÁÖ¹® ¸®½ºÆ®"
+        .CenterHeader = "ì „ì±„ë„ ì£¼ë¬¸ ë¦¬ìŠ¤íŠ¸"
         .RightHeader = "&P/&N"
         .LeftFooter = ""
         .CenterFooter = ""
@@ -221,30 +233,17 @@ Sub ÀüÃ¤³ÎÁÖ¹®¸®½ºÆ®()
     End With
     Application.PrintCommunication = True
     ActiveWindow.View = xlNormalView
-    ''''ÇÁ¸°Æ® ¼³Á¤ ³¡
+    ''''í”„ë¦°íŠ¸ ì„¤ì • ë
     
     
-    '''' ¹è¼Û º¸·ùÀÎ ÁÖ¹®°ÇÀÇ »óÇ°¸í¿¡ Ãë¼Ò¼± ±ß±â
-    Columns("E:E").Select
-    Selection.FormatConditions.Add Type:=xlExpression, Formula1:= _
-        "=$K1=""¹è¼Û º¸·ù"""
-    Selection.FormatConditions(Selection.FormatConditions.count).SetFirstPriority
-    With Selection.FormatConditions(1).Font
-        .Strikethrough = True
-        .TintAndShade = 0
-    End With
-    Selection.FormatConditions(1).StopIfTrue = False
-    
-    ''''ÁÖ¹® »óÅÂ°¡ ÀûÈù ¿­ ¼û±â±â
-    Columns("K:K").Select
-    Selection.EntireColumn.Hidden = True
-    
-    
-    ''''Á¤±â¹è¼Û°ÇÀÇ ÁÖ¹®ÀÚ¸í°ú »óÇ°¸íÀ» ÇÏ´Ã»öÀ¸·Î Ã¤¿ì±â.
-    Range("D2:F2").Select
+    ''''ì •ê¸°ë°°ì†¡ê±´ì˜ ìƒí’ˆëª…ì„ í•˜ëŠ˜ìƒ‰ìœ¼ë¡œ ì±„ìš°ê¸°.
+    'Range("D2:F2").Select
+    Cells(2, FindColumnIndex("ìƒí’ˆëª…")).Select
     Range(Selection, Selection.End(xlDown)).Select
     ActiveWindow.SmallScroll Down:=0
-    Selection.FormatConditions.Add Type:=xlExpression, Formula1:="=$P2 >=1"
+   ' Selection.FormatConditions.Add Type:=xlExpression, Formula1:="=$P2 >=1"
+    colLetter = FindColumnIndex("ì •ê¸°ë°°ì†¡ íšŒì°¨", 1)
+    Selection.FormatConditions.Add Type:=xlExpression, Formula1:="=$" & colLetter & "2 >=1"
     Selection.FormatConditions(Selection.FormatConditions.count).SetFirstPriority
     With Selection.FormatConditions(1).Interior
         .PatternColorIndex = xlAutomatic
@@ -252,94 +251,105 @@ Sub ÀüÃ¤³ÎÁÖ¹®¸®½ºÆ®()
         .TintAndShade = 0.599963377788629
     End With
     Selection.FormatConditions(1).StopIfTrue = False
-    ActiveWindow.SmallScroll Down:=-30
 
     
-    ''''********************************************************¹Ú½ºÅë°è ½ÃÀÛ*********************************************************************'''''
-    '''' Çàº° ÃÑÁß·® ±¸ÇÏ±â. (¿É¼Ç¿¡ Áß·®ÀÖÀ¸¸é °Å±â¼­ ¼ıÀÚ¸¸ °¡Á®¿À±â. ¾øÀ¸¸é Áß·®¿­¿¡¼­ °¡Á®¿À±â)
-    ''Q¿­ ¿ŞÂÊÂÊ¿¡ ¿­ »ğÀÔÇØ¼­ ¹Ú½º¿­ Ãß°¡.
-    Range("P1").Select
+    ''''********************************************************ë°•ìŠ¤í†µê³„ ì‹œì‘*********************************************************************'''''
+    '''' í–‰ë³„ ì´ì¤‘ëŸ‰ êµ¬í•˜ê¸°. (ì˜µì…˜ì— ì¤‘ëŸ‰ìˆìœ¼ë©´ ê±°ê¸°ì„œ ìˆ«ìë§Œ ê°€ì ¸ì˜¤ê¸°. ì—†ìœ¼ë©´ ì¤‘ëŸ‰ì—´ì—ì„œ ê°€ì ¸ì˜¤ê¸°)
+    ''Qì—´ ì™¼ìª½ìª½ì— ì—´ ì‚½ì…í•´ì„œ ë°•ìŠ¤ì—´ ì¶”ê°€.
+   ' Range("P1").Select
+    Columns(FindColumnIndex("ì •ê¸°ë°°ì†¡ íšŒì°¨")).Select
     Selection.EntireColumn.Insert , CopyOrigin:=xlFormatFromLeftOrAbove
-    Range("P1").Select
-    ActiveCell.FormulaR1C1 = "ÃÑÁß·®"
+    Cells(1, FindColumnIndex("ì •ê¸°ë°°ì†¡ íšŒì°¨") - 1).Value = "ì´ì¤‘ëŸ‰"
     
-    Range("P2").Select
+    
+    'Range("P2").Select
+    Cells(2, FindColumnIndex("ì´ì¤‘ëŸ‰")).Select
+    colLetter = FindColumnIndex("ì´ì¤‘ëŸ‰", 1)
     ActiveCell.FormulaR1C1 = _
-        "=IF(ISBLANK(RC15), ""¿ŞÂÊ¿¡ Áß·® ¾²±â"", IF(IFERROR(FIND(""Áß·®"", RC6), 0), MID(RC6, SEARCH(""="", RC6) + 1, SEARCH(""kg"",RC6) - SEARCH(""="", RC6) - 1), RC15)  * RC[-9])"
-       ''=IF(IFERROR(FIND("Áß·®", $G2), 0), MID(G2, SEARCH("=", G2) + 1, SEARCH("kg", G2) - SEARCH("=", G2) - 1), $O2)  * I2
-       ''RC¼ıÀÚ´Â ÇöÀç ¼¿À» ±âÁØÀ¸·Î Çà°ú¿­À» ¸î°³³ª ¿òÁ÷ÀÌ´ÂÁö¸¦ ¾Ë·ÁÁÖ´Â ¹æ½ÄÀ¸·Î ¼¿ÀÇ À§Ä¡¸¦ Ç¥½ÃÇÏ´Â µí. ±Ùµ¥ ¾ç¼ö´Â $¸¦ ºÙÀÌ´Âµ¥ À½¼ö´Â $°¡ ¾ÈºÙ´Â°Å °°´Ù.
+        "=IF(ISBLANK(RC15), ""ì™¼ìª½ì— ì¤‘ëŸ‰ ì“°ê¸°"", IF(IFERROR(FIND(""ì¤‘ëŸ‰"", RC6), 0), MID(RC6, SEARCH(""="", RC6) + 1, SEARCH(""kg"",RC6) - SEARCH(""="", RC6) - 1), RC15)  * RC[-9])"
+        ''=IF(IFERROR(FIND("ì¤‘ëŸ‰", $G2), 0), MID(G2, SEARCH("=", G2) + 1, SEARCH("kg", G2) - SEARCH("=", G2) - 1), $O2)  * I2
+       ''RCìˆ«ìëŠ” í˜„ì¬ ì…€ì„ ê¸°ì¤€ìœ¼ë¡œ í–‰ê³¼ì—´ì„ ëª‡ê°œë‚˜ ì›€ì§ì´ëŠ”ì§€ë¥¼ ì•Œë ¤ì£¼ëŠ” ë°©ì‹ìœ¼ë¡œ ì…€ì˜ ìœ„ì¹˜ë¥¼ í‘œì‹œí•˜ëŠ” ë“¯. ê·¼ë° ì–‘ìˆ˜ëŠ” $ë¥¼ ë¶™ì´ëŠ”ë° ìŒìˆ˜ëŠ” $ê°€ ì•ˆë¶™ëŠ”ê±° ê°™ë‹¤.
+    '    "=IF(ISBLANK(RC15), ""ì™¼ìª½ì— ì¤‘ëŸ‰ ì“°ê¸°"", IF(IFERROR(FIND(""ì¤‘ëŸ‰"", RC6), 0), MID(RC6, SEARCH(""="", RC6) + 1, SEARCH(""kg"",RC6) - SEARCH(""="", RC6) - 1), RC15)  * RC[-9])"
+       
+        
      
-     
-    ''''ÁÖ¹®°Çº° ÃÑÁß·® ±¸ÇÏ±â
-    Range("R1").Select
+    ''''ì£¼ë¬¸ê±´ë³„ ì´ì¤‘ëŸ‰ êµ¬í•˜ê¸°
+    'Range("R1").Select
+    Columns(FindColumnIndex("ì •ê¸°ë°°ì†¡ íšŒì°¨") + 1).Select
     Selection.EntireColumn.Insert , CopyOrigin:=xlFormatFromLeftOrAbove
-    Range("R1").Select
-    ActiveCell.FormulaR1C1 = "ÁÖ¹®°Çº° ÃÑÁß·®"
-    Range("R2").Select
+    Cells(1, FindColumnIndex("ì •ê¸°ë°°ì†¡ íšŒì°¨") + 1).Select
+    ActiveCell.FormulaR1C1 = "ì£¼ë¬¸ê±´ë³„ ì´ì¤‘ëŸ‰"
+   ' Range("R2").Select
+   Cells(2, FindColumnIndex("ì£¼ë¬¸ê±´ë³„ ì´ì¤‘ëŸ‰")).Select
     ActiveCell.FormulaR1C1 = _
         "=IF(COUNTIF(R2C[-16]:RC2, RC[-16])=COUNTIF(R2C2:R1000C2, RC[-16]), SUMIF(R2C2:R1000C2, RC[-16], R2C16:R1000C16), """")"
         '=IF(COUNTIF(A$2:$D2, A2)=COUNTIF($D$2:$D$1000, A2), SUMIF($D$2:$D$1000, A2, $Q$2:$Q$1000), "")
      
      
-     ''''ÃÑ Áß·®º° ¹Ú½º Å©±â¸¦ ÁöÁ¤ÇÏ´Â ÇÔ¼ö
-     Range("N2").Select
+    
+     ''''ì´ ì¤‘ëŸ‰ë³„ ë°•ìŠ¤ í¬ê¸°ë¥¼ ì§€ì •í•˜ëŠ” í•¨ìˆ˜
+     'Range("N2").Select
    '  ActiveCell.FormulaR1C1 = "=IF(RC15>0, IF(RC15<1, 73, IF(RC15<2, 194, IF(RC15<4, 41, """"))), """")"
-     ActiveCell.FormulaR1C1 = "=IF(RC18<1, 73, IF(RC18<2, 194, IF(RC18<3.8, 41, IF(RC18<=4, 420,IF(RC18<=4.3, 104 ,IF(RC18<8, 170,""¡é""))))))"
+   '  ActiveCell.FormulaR1C1 = "=IF(RC18<1, 73, IF(RC18<2, 194, IF(RC18<3.8, 41, IF(RC18<=4, 420,IF(RC18<=4.3, 104 ,IF(RC18<8, 170,""â†“""))))))"
                             '''=IF($S2<1,73,IF($S2<2,194,IF($S2<4,41,IF($S2=4,420,IF($S2<4.3,104,IF($S2<5,170,"-"))))))
+    colLetter = "$" & FindColumnIndex("ì£¼ë¬¸ê±´ë³„ ì´ì¤‘ëŸ‰", 1) & "2"  '-> $R2
+    Cells(2, FindColumnIndex("ë°•ìŠ¤")).Formula = "=IF(" & colLetter & "<1, 73, IF(" & colLetter & "<2, 194, IF(" & colLetter & "<3.8, 41, IF(" & colLetter & "<=4, 420,IF(" & colLetter & "<=4.3, 104 ,IF(" & colLetter & "<8, 170,""â†“""))))))"
 
-     
-
-    ''º¯¼ö ¼±¾ğ
+    ''ë³€ìˆ˜ ì„ ì–¸
     Dim criteriaRange As String
     Dim criteria As String
     Dim boxCountCol As String
     
     boxCountCol = "C"
     
-     ''¹Ú½º ¹øÈ£ ÀÔ·Â
-    ActiveSheet.Cells(lastRow + 2, "B").Value = "¹Ú½º"
-    ActiveSheet.Cells(lastRow + 2, boxCountCol).Value = "°³¼ö"
-    ActiveSheet.Cells(lastRow + 3, "B").Value = 73
-    ActiveSheet.Cells(lastRow + 4, "B").Value = 194
-    ActiveSheet.Cells(lastRow + 5, "B").Value = 41
-    ActiveSheet.Cells(lastRow + 6, "B").Value = 420
-    ActiveSheet.Cells(lastRow + 7, "B").Value = 104
-    ActiveSheet.Cells(lastRow + 8, "B").Value = 170
-    ActiveSheet.Cells(lastRow + 9, "B").Value = 58
+     ''ë°•ìŠ¤ ë²ˆí˜¸ ì…ë ¥
+    Cells(lastRow + 2, "B").Value = "ë°•ìŠ¤"
+    Cells(lastRow + 2, boxCountCol).Value = "ê°œìˆ˜"
+    Cells(lastRow + 3, "B").Value = 73
+    Cells(lastRow + 4, "B").Value = 194
+    Cells(lastRow + 5, "B").Value = 41
+    Cells(lastRow + 6, "B").Value = 420
+    Cells(lastRow + 7, "B").Value = 104
+    Cells(lastRow + 8, "B").Value = 170
+    Cells(lastRow + 9, "B").Value = 58
      
-    ''»ç¿ëÇÒ ¹Ú½º °³¼ö ¼¼±â
+    ''ì‚¬ìš©í•  ë°•ìŠ¤ ê°œìˆ˜ ì„¸ê¸°
     ActiveSheet.Cells(lastRow + 3, boxCountCol).Select
    
    
-   
-    criteriaRange = "N:N" ''M¿­ ÀüÃ¼¸¦ °¡¸®Å´.
-    criteria = "B" & lastRow + 3 & ":B" & lastRow + 9 ''¹Ú½º ¹øÈ£°¡ ÀûÈù ¹üÀ§¸¦ °¡¸®Å´.
+    'criteriaRange = "N:N" ''Mì—´ ì „ì²´ë¥¼ ê°€ë¦¬í‚´.
+    colLetter = FindColumnIndex("ë°•ìŠ¤", 1)
+    criteriaRange = colLetter & ":" & colLetter
+    criteria = "B" & lastRow + 3 & ":B" & lastRow + 9 ''ë°•ìŠ¤ ë²ˆí˜¸ê°€ ì íŒ ë²”ìœ„ë¥¼ ê°€ë¦¬í‚´.
     
-    ' COUNTIF ÇÔ¼ö »ğÀÔ
+    ' COUNTIF í•¨ìˆ˜ ì‚½ì…
     ActiveSheet.Cells(lastRow + 3, boxCountCol).Formula = "=COUNTIF(" & criteriaRange & "," & criteria & ")"
-        ''->=COUNTIF(M:M,'C20':'C27') ÀÌ·±½ÄÀ¸·Î µÎ¹øÂ°¿ä¼ÒµéÀÌ ÀÛÀºµû¿ÈÇ¥¿¡ °¨½ÎÁ®¼­ ³ª¿È. ¾î¶»°Ô °íÃÄ¾ßÇÒÁö ¸ğ¸£°ÚÀ½.
-        ''->criteriaRange¶û criteria¸¦ ¼öÁ¤Çß´õ´Ï°©ÀÚ±â Á¤»óÀûÀ¸·Î ³ª¿È. µµ´ëÃ¼ ¹»±î.
+        ''->=COUNTIF(M:M,'C20':'C27') ì´ëŸ°ì‹ìœ¼ë¡œ ë‘ë²ˆì§¸ìš”ì†Œë“¤ì´ ì‘ì€ë”°ì˜´í‘œì— ê°ì‹¸ì ¸ì„œ ë‚˜ì˜´. ì–´ë–»ê²Œ ê³ ì³ì•¼í• ì§€ ëª¨ë¥´ê² ìŒ.
+        ''->criteriaRangeë‘ criteriaë¥¼ ìˆ˜ì •í–ˆë”ë‹ˆê°‘ìê¸° ì •ìƒì ìœ¼ë¡œ ë‚˜ì˜´. ë„ëŒ€ì²´ ë­˜ê¹Œ.
     Selection.AutoFill Destination:=Range(boxCountCol & lastRow + 3 & ":" & boxCountCol & lastRow + 9), Type:=xlFillDefault
-    ''''********************************************************¹Ú½ºÅë°è ³¡*********************************************************************'''''
+    ''''********************************************************ë°•ìŠ¤í†µê³„ ë*********************************************************************'''''
 
 
     
     
-    ''''ÀÏ·Ã¹øÈ£ ºÙÀÌ±â. °°Àº ÁÖ¹®¹øÈ£°¡ ¿©·¯°³ ÀÖ´õ¶óµµ ÇÏ³ªÀÇ ÁÖ¹®°ÇÀÌ±â¶§¹®¿¡ ÇÏ³ª·Î Ä«¿îÆ®
-    Range("B1").Select
-    Selection.EntireColumn.Insert , CopyOrigin:=xlFormatFromLeftOrAbove ''ÁÖ¹®¹øÈ£¿­ ¿ŞÂÊ¿¡ ¿­ »ğÀÔ
-    Range("B1").Select
-    ActiveCell.FormulaR1C1 = "¿¬¹ø"
-    Range("B2").Select
+    ''''ì¼ë ¨ë²ˆí˜¸ ë¶™ì´ê¸°. ê°™ì€ ì£¼ë¬¸ë²ˆí˜¸ê°€ ì—¬ëŸ¬ê°œ ìˆë”ë¼ë„ í•˜ë‚˜ì˜ ì£¼ë¬¸ê±´ì´ê¸°ë•Œë¬¸ì— í•˜ë‚˜ë¡œ ì¹´ìš´íŠ¸
+   ' Range("B1").Select
+    Columns(FindColumnIndex("ì£¼ë¬¸ë²ˆí˜¸")).Select
+    Selection.EntireColumn.Insert , CopyOrigin:=xlFormatFromLeftOrAbove ''ì£¼ë¬¸ë²ˆí˜¸ì—´ ì™¼ìª½ì— ì—´ ì‚½ì…
+    'Range("B1").Select
+    Cells(1, FindColumnIndex("ì£¼ë¬¸ë²ˆí˜¸") - 1).Select
+    ActiveCell.FormulaR1C1 = "ì—°ë²ˆ"
+    'Range("B2").Select
+    Cells(2, FindColumnIndex("ì—°ë²ˆ")).Select
     ActiveCell.FormulaR1C1 = _
         "=IF(COUNTIF(R2C3:RC[1], RC[1])=1, MAX(R1C2:R[-1]C)+1, IFERROR(VLOOKUP(RC[1], R1C2:R[-1]C3, 2, FALSE), """"))"
        ''=IF(COUNTIF($C$2:C2, C2)=1, MAX($B$1:B1)+1, IFERROR(VLOOKUP(C2, $B$1:$C1, 2, FALSE), ""))
-    Columns("B:B").Select
-    Selection.ColumnWidth = 2.25 ''¿­ ³Êºñ Á¶Á¤
+    Columns(FindColumnIndex("ì—°ë²ˆ")).Select
+    Selection.ColumnWidth = 2.25 ''ì—´ ë„ˆë¹„ ì¡°ì •
     
-    ''''°¢ Çà¿¡ ÁÙ±ß±â
+    ''''ê° í–‰ì— ì¤„ê¸‹ê¸°
     Range("A1:O1").Select
-    Range(Selection, Selection.End(xlDown)).Select ''ÄÁÆ®·Ñ ¹æÇâÅ° ¾Æ·¡
+    Range(Selection, Selection.End(xlDown)).Select ''ì»¨íŠ¸ë¡¤ ë°©í–¥í‚¤ ì•„ë˜
     
     Selection.Borders(xlDiagonalDown).LineStyle = xlNone
     Selection.Borders(xlDiagonalUp).LineStyle = xlNone
@@ -356,20 +366,20 @@ Sub ÀüÃ¤³ÎÁÖ¹®¸®½ºÆ®()
     End With
     
     
-    ''''ÇÔ¼ö°¡ Àû¿ëµÈ ¿­µé ¸Ç ¹ØÇà±îÁö ÀÚµ¿Ã¤¿ì±â
-    ''ÀÚµ¿Ã¤¿ì±â Àû¿ëÇÒ ¿­
-    cols = Array("B", "O", "Q", "S")
+    ''''í•¨ìˆ˜ê°€ ì ìš©ëœ ì—´ë“¤ ë§¨ ë°‘í–‰ê¹Œì§€ ìë™ì±„ìš°ê¸°
+    ''ìë™ì±„ìš°ê¸° ì ìš©í•  ì—´
+   ' cols = Array("B", "O", "Q", "S")
+    cols = Array(FindColumnIndex("ì—°ë²ˆ", 1), FindColumnIndex("ë°•ìŠ¤", 1), FindColumnIndex("ì´ì¤‘ëŸ‰", 1), FindColumnIndex("ì£¼ë¬¸ê±´ë³„ ì´ì¤‘ëŸ‰", 1))
     
-    For i = LBound(cols) To UBound(cols) ' °¢ ¿­¿¡ ´ëÇØ AutoFill ¼öÇà
-        '' ½ÃÀÛ ¼¿ ¼±ÅÃ
+    For i = LBound(cols) To UBound(cols) ' ê° ì—´ì— ëŒ€í•´ AutoFill ìˆ˜í–‰
+        '' ì‹œì‘ ì…€ ì„ íƒ
         Range(cols(i) & 2).Select
-        '' ¹üÀ§ ¼³Á¤ ¹× AutoFill ¼öÇà
+        '' ë²”ìœ„ ì„¤ì • ë° AutoFill ìˆ˜í–‰
         Selection.AutoFill Destination:=Range(cols(i) & 2 & ":" & cols(i) & lastRow), Type:=xlFillDefault
     Next i
+ 
     
 
     
     Range("B1").Select
 End Sub
-
-
