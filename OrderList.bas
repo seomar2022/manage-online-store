@@ -1,4 +1,3 @@
-Attribute VB_Name = "Module21"
 
 ''헤더 이름으로 인덱스 구하는 함수. (열의 인덱스로 지정하니까, 열 순서가 달라지거나 새로운 열 추가할 때 처음부터 다 고치는게 번거로워서 만듦)
 Function FindColumnIndex(headerName As String, Optional resultType As Integer) As Variant
@@ -23,7 +22,7 @@ Function FindColumnIndex(headerName As String, Optional resultType As Integer) A
     ' 헤더를 찾지 못했을 경우 -1 반환
     FindColumnIndex = -1
 End Function
-''엑셀의 열 번호를 알파벳 문자로 변환하는 함수입니다.
+''엑셀의 열 번호를 알파벳 문자로 변환하는 함수
 Function ColumnNumberToLetter(columnNumber As Long) As String
     Dim columnLetter As String
     columnLetter = ""
@@ -48,10 +47,45 @@ Sub 전채널주문리스트()
 
     ''변수선언 ->Dim 문은 변수를 선언하는 데 사용됨. 생략해도 변수를 암시적으로 선언하게 되지만, 이는 가독성이나 코드 유지보수성 측면에서 바람직하지 않습니다.
     Dim lastRow As Long
+    
+    Dim salesChannel As Long '매출경로
+    Dim orderNumber As Long '주문번호
+    Dim customerName As Long '주문자명
+    Dim brand As Long '브랜드
+    Dim productName As Long '상품명(한국어 쇼핑몰)
+    Dim productOption As Long '상품옵션
+    Dim productOptionToLetter As String
+    Dim quantity As Long '수량
+    Dim quantityToLetter As String
+    Dim recipient As Long '수령인
+    Dim gift As Long '사은품
+    Dim additionalInfo As Long '주문서추가항목01_사은품 선택 (공통입력사항)
+    Dim additionalInfoToLetter As String
+    Dim price As Long '옵션+판매가
+    Dim orderStatus As Long '주문 상태
+    Dim address As Long '수령인 주소(전체)
+    Dim deliveryMessage As Long '배송메시지
+    Dim weight As Long '중량
+    Dim weightToLetter As String
+    Dim regularDelivery As Long '정기배송 회차
+    Dim productCode As Long '상품코드
+    Dim petType As Long '회원추가항목_반려견/반려묘의 종류
+    Dim petTypeToLetter As String
+    Dim memberGrade As Long '회원등급
      
     ''가장 마지막행 찾기.
     lastRow = ActiveSheet.Cells(ActiveSheet.Rows.count, "A").End(xlUp).row
     
+    ''''사은품 열 조절
+    additionalInfo = FindColumnIndex("주문서추가항목01_사은품 선택 (공통입력사항)")
+    Columns(additionalInfo).Select
+    Selection.EntireColumn.Insert , CopyOrigin:=xlFormatFromLeftOrAbove
+    
+    additionalInfoToLetter = "$" & FindColumnIndex("주문서추가항목01_사은품 선택 (공통입력사항)", 1) & "2"
+    petTypeToLetter = "$" & FindColumnIndex("주문서추가항목01_사은품 선택 (공통입력사항)", 1) & "2"
+    Cells(1, additionalInfo).Value = "사은품"
+    Cells(2, additionalInfo).Formula = "=IF(ISBLANK(" & additionalInfoToLetter & "), " & petTypeToLetter & ", " & additionalOrderInfo & ")"
+  
     
     
     ''''열 해더명 바꾸기
@@ -61,8 +95,9 @@ Sub 전채널주문리스트()
     Cells.Replace What:="옵션+판매가", Replacement:="가격", LookAt:=xlPart, SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, ReplaceFormat:=False
     Cells.Replace What:="수령인 우편번호", Replacement:="우편번호", LookAt:=xlPart, SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, ReplaceFormat:=False
     Cells.Replace What:="수령인 주소(전체)", Replacement:="주소", LookAt:=xlPart, SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, ReplaceFormat:=False
-    Cells.Replace What:="주문서추가항목01_사은품 선택 (공통입력사항)", Replacement:="사은품", LookAt:=xlPart, SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, ReplaceFormat:=False
-        
+  '  Cells.Replace What:="주문서추가항목01_사은품 선택 (공통입력사항)", Replacement:="사은품", LookAt:=xlPart, SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, ReplaceFormat:=False
+    
+    
     Columns("I:I").Select
     Selection.Replace What:="강아지용", Replacement:="독", LookAt:=xlPart, SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, ReplaceFormat:=False
     Selection.Replace What:="고양이용", Replacement:="캣", LookAt:=xlPart, SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, ReplaceFormat:=False
@@ -114,12 +149,15 @@ Sub 전채널주문리스트()
     Columns(FindColumnIndex("옵션")).ColumnWidth = 9
     Columns(FindColumnIndex("수량")).ColumnWidth = 3 ''세자리수 보이기위해
     Columns(FindColumnIndex("수령인")).ColumnWidth = 6
-    Columns(FindColumnIndex("사은품")).ColumnWidth = 4
+    Columns(FindColumnIndex("사은품")).ColumnWidth = 6
+    Columns(FindColumnIndex("주문서추가항목01_사은품 선택 (공통입력사항)")).ColumnWidth = 0
+    Columns(FindColumnIndex("회원등급")).ColumnWidth = 0
+    Columns(FindColumnIndex("회원추가항목_반려견/반려묘의 종류")).ColumnWidth = 0
     Columns(FindColumnIndex("가격")).ColumnWidth = 8
     Columns(FindColumnIndex("주문 상태")).ColumnWidth = 0
     Columns(FindColumnIndex("주소")).ColumnWidth = 30
     Columns(FindColumnIndex("배송메시지")).ColumnWidth = 13
- '   Columns(FindColumnIndex("상품명(관리용)")).ColumnWidth = 20
+   ' Columns(FindColumnIndex("상품명(관리용)")).ColumnWidth = 20
     
     
     ''가격에 , 붙이기
@@ -251,6 +289,7 @@ Sub 전채널주문리스트()
         .TintAndShade = 0.599963377788629
     End With
     Selection.FormatConditions(1).StopIfTrue = False
+  '  ActiveWindow.SmallScroll Down:=-30
 
     
     ''''********************************************************박스통계 시작*********************************************************************'''''
@@ -262,11 +301,15 @@ Sub 전채널주문리스트()
     Cells(1, FindColumnIndex("정기배송 회차") - 1).Value = "총중량"
     
     
-    'Range("P2").Select
-    Cells(2, FindColumnIndex("총중량")).Select
-    colLetter = FindColumnIndex("총중량", 1)
-    ActiveCell.FormulaR1C1 = _
-        "=IF(ISBLANK(RC15), ""왼쪽에 중량 쓰기"", IF(IFERROR(FIND(""중량"", RC6), 0), MID(RC6, SEARCH(""="", RC6) + 1, SEARCH(""kg"",RC6) - SEARCH(""="", RC6) - 1), RC15)  * RC[-9])"
+   ' Cells(2, FindColumnIndex("총중량")).Select
+   ' colLetter = FindColumnIndex("총중량", 1)
+   weightToLetter = "$" & FindColumnIndex("중량", 1) & "2"
+   productOptionToLetter = "$" & FindColumnIndex("옵션", 1) & "2"
+   quantityToLetter = "$" & FindColumnIndex("수량", 1) & "2"
+     Cells(2, FindColumnIndex("총중량")).Formula = "=IF(ISBLANK(" & weightToLetter & "), ""왼쪽에 중량 쓰기"", IF(IFERROR(FIND(""중량"", " & productOptionToLetter & "), 0), MID(" & productOptionToLetter & ", SEARCH(""="", " & productOptionToLetter & ") + 1, SEARCH(""kg""," & productOptionToLetter & ") - SEARCH(""="", " & productOptionToLetter & ") - 1), " & weightToLetter & ")  * " & quantityToLetter & ")"
+    
+   ' ActiveCell.FormulaR1C1 = _
+      '  "=IF(ISBLANK(RC15), ""왼쪽에 중량 쓰기"", IF(IFERROR(FIND(""중량"", RC6), 0), MID(RC6, SEARCH(""="", RC6) + 1, SEARCH(""kg"",RC6) - SEARCH(""="", RC6) - 1), RC15)  * RC[-9])"
         ''=IF(IFERROR(FIND("중량", $G2), 0), MID(G2, SEARCH("=", G2) + 1, SEARCH("kg", G2) - SEARCH("=", G2) - 1), $O2)  * I2
        ''RC숫자는 현재 셀을 기준으로 행과열을 몇개나 움직이는지를 알려주는 방식으로 셀의 위치를 표시하는 듯. 근데 양수는 $를 붙이는데 음수는 $가 안붙는거 같다.
     '    "=IF(ISBLANK(RC15), ""왼쪽에 중량 쓰기"", IF(IFERROR(FIND(""중량"", RC6), 0), MID(RC6, SEARCH(""="", RC6) + 1, SEARCH(""kg"",RC6) - SEARCH(""="", RC6) - 1), RC15)  * RC[-9])"
@@ -274,13 +317,13 @@ Sub 전채널주문리스트()
         
      
     ''''주문건별 총중량 구하기
-    'Range("R1").Select
     Columns(FindColumnIndex("정기배송 회차") + 1).Select
     Selection.EntireColumn.Insert , CopyOrigin:=xlFormatFromLeftOrAbove
     Cells(1, FindColumnIndex("정기배송 회차") + 1).Select
     ActiveCell.FormulaR1C1 = "주문건별 총중량"
-   ' Range("R2").Select
    Cells(2, FindColumnIndex("주문건별 총중량")).Select
+   
+   '''''''''''''''''''''''''여기 고쳐야함'''''''''''''''''''''''''''''
     ActiveCell.FormulaR1C1 = _
         "=IF(COUNTIF(R2C[-16]:RC2, RC[-16])=COUNTIF(R2C2:R1000C2, RC[-16]), SUMIF(R2C2:R1000C2, RC[-16], R2C16:R1000C16), """")"
         '=IF(COUNTIF(A$2:$D2, A2)=COUNTIF($D$2:$D$1000, A2), SUMIF($D$2:$D$1000, A2, $Q$2:$Q$1000), "")
@@ -362,14 +405,14 @@ Sub 전채널주문리스트()
         .LineStyle = xlContinuous
         .ThemeColor = 1
         .TintAndShade = -0.349986266670736
-        .Weight = xlThin
+        .weight = xlThin
     End With
     
     
     ''''함수가 적용된 열들 맨 밑행까지 자동채우기
     ''자동채우기 적용할 열
    ' cols = Array("B", "O", "Q", "S")
-    cols = Array(FindColumnIndex("연번", 1), FindColumnIndex("박스", 1), FindColumnIndex("총중량", 1), FindColumnIndex("주문건별 총중량", 1))
+    cols = Array(FindColumnIndex("연번", 1), FindColumnIndex("사은품", 1), FindColumnIndex("박스", 1), FindColumnIndex("총중량", 1), FindColumnIndex("주문건별 총중량", 1))
     
     For i = LBound(cols) To UBound(cols) ' 각 열에 대해 AutoFill 수행
         '' 시작 셀 선택
