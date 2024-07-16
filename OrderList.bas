@@ -9,7 +9,7 @@ Function FindColumnIndex(headerName As String, Optional resultType As Integer) A
     
     Dim col As Long
     For col = 1 To lastCol
-        If Cells(headerRow, col).Value = headerName Then
+       If Cells(headerRow, col).Value = headerName Then
            If resultType = 1 Then
                 FindColumnIndex = ColumnNumberToLetter(col)
             Else
@@ -18,6 +18,7 @@ Function FindColumnIndex(headerName As String, Optional resultType As Integer) A
             Exit Function
         End If
     Next col
+
     
     ' 헤더를 찾지 못했을 경우 -1 반환
     FindColumnIndex = -1
@@ -72,20 +73,12 @@ Sub 전채널주문리스트()
     Dim petType As Long '회원추가항목_반려견/반려묘의 종류
     Dim petTypeToLetter As String
     Dim memberGrade As Long '회원등급
+    Dim memberGradeToLetter As String
      
     ''가장 마지막행 찾기.
     lastRow = ActiveSheet.Cells(ActiveSheet.Rows.count, "A").End(xlUp).row
     
-    ''''사은품 열 조절
-    additionalInfo = FindColumnIndex("주문서추가항목01_사은품 선택 (공통입력사항)")
-    Columns(additionalInfo).Select
-    Selection.EntireColumn.Insert , CopyOrigin:=xlFormatFromLeftOrAbove
-    
-    additionalInfoToLetter = "$" & FindColumnIndex("주문서추가항목01_사은품 선택 (공통입력사항)", 1) & "2"
-    petTypeToLetter = "$" & FindColumnIndex("주문서추가항목01_사은품 선택 (공통입력사항)", 1) & "2"
-    Cells(1, additionalInfo).Value = "사은품"
-    Cells(2, additionalInfo).Formula = "=IF(ISBLANK(" & additionalInfoToLetter & "), " & petTypeToLetter & ", " & additionalOrderInfo & ")"
-  
+ 
     
     
     ''''열 해더명 바꾸기
@@ -95,8 +88,9 @@ Sub 전채널주문리스트()
     Cells.Replace What:="옵션+판매가", Replacement:="가격", LookAt:=xlPart, SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, ReplaceFormat:=False
     Cells.Replace What:="수령인 우편번호", Replacement:="우편번호", LookAt:=xlPart, SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, ReplaceFormat:=False
     Cells.Replace What:="수령인 주소(전체)", Replacement:="주소", LookAt:=xlPart, SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, ReplaceFormat:=False
-  '  Cells.Replace What:="주문서추가항목01_사은품 선택 (공통입력사항)", Replacement:="사은품", LookAt:=xlPart, SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, ReplaceFormat:=False
-    
+    Cells.Replace What:="주문서추가항목01_사은품 선택 (공통입력사항)", Replacement:="주문서추가항목", LookAt:=xlPart, SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, ReplaceFormat:=False
+    Cells.Replace What:="회원추가항목_반려견/반려묘의 종류", Replacement:="견묘종", LookAt:=xlPart, SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, ReplaceFormat:=False
+  
     
     Columns("I:I").Select
     Selection.Replace What:="강아지용", Replacement:="독", LookAt:=xlPart, SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, ReplaceFormat:=False
@@ -138,46 +132,11 @@ Sub 전채널주문리스트()
     Cells(1, FindColumnIndex("중량")).Select
     Selection.EntireColumn.Insert , CopyOrigin:=xlFormatFromLeftOrAbove
     Cells(1, FindColumnIndex("중량") - 1).Value = "박스"
-    Columns(FindColumnIndex("박스")).ColumnWidth = 3.2
-    
-    ''각 열의 너비 조절
-    Columns(FindColumnIndex("매출경로")).ColumnWidth = 0
-    Columns(FindColumnIndex("주문번호")).ColumnWidth = 8.13
-    Columns(FindColumnIndex("주문자")).ColumnWidth = 6
-    Columns(FindColumnIndex("브랜드")).ColumnWidth = 0
-    Columns(FindColumnIndex("상품명")).ColumnWidth = 30
-    Columns(FindColumnIndex("옵션")).ColumnWidth = 9
-    Columns(FindColumnIndex("수량")).ColumnWidth = 3 ''세자리수 보이기위해
-    Columns(FindColumnIndex("수령인")).ColumnWidth = 6
-    Columns(FindColumnIndex("사은품")).ColumnWidth = 6
-    Columns(FindColumnIndex("주문서추가항목01_사은품 선택 (공통입력사항)")).ColumnWidth = 0
-    Columns(FindColumnIndex("회원등급")).ColumnWidth = 0
-    Columns(FindColumnIndex("회원추가항목_반려견/반려묘의 종류")).ColumnWidth = 0
-    Columns(FindColumnIndex("가격")).ColumnWidth = 8
-    Columns(FindColumnIndex("주문 상태")).ColumnWidth = 0
-    Columns(FindColumnIndex("주소")).ColumnWidth = 30
-    Columns(FindColumnIndex("배송메시지")).ColumnWidth = 13
-   ' Columns(FindColumnIndex("상품명(관리용)")).ColumnWidth = 20
-    
     
     ''가격에 , 붙이기
     Columns(FindColumnIndex("가격")).Select
     Selection.Style = "Comma [0]"
     Cells.Select
-    
-    ''행높이 자동맞춤
-    Range("B1").Activate
-    With Selection
-        .HorizontalAlignment = xlGeneral
-        .VerticalAlignment = xlCenter
-        .WrapText = True
-        .Orientation = 0
-        .AddIndent = False
-        .IndentLevel = 0
-        .ShrinkToFit = False
-        .ReadingOrder = xlContext
-        .MergeCells = False
-    End With
     
     ''''수량 2개이상인 항목 빨간색으로 채우기
     ActiveSheet.Cells(2, FindColumnIndex("수량")).Select
@@ -376,24 +335,116 @@ Sub 전채널주문리스트()
     
     
     ''''일련번호 붙이기. 같은 주문번호가 여러개 있더라도 하나의 주문건이기때문에 하나로 카운트
-   ' Range("B1").Select
     Columns(FindColumnIndex("주문번호")).Select
     Selection.EntireColumn.Insert , CopyOrigin:=xlFormatFromLeftOrAbove ''주문번호열 왼쪽에 열 삽입
-    'Range("B1").Select
     Cells(1, FindColumnIndex("주문번호") - 1).Select
     ActiveCell.FormulaR1C1 = "연번"
-    'Range("B2").Select
     Cells(2, FindColumnIndex("연번")).Select
     ActiveCell.FormulaR1C1 = _
         "=IF(COUNTIF(R2C3:RC[1], RC[1])=1, MAX(R1C2:R[-1]C)+1, IFERROR(VLOOKUP(RC[1], R1C2:R[-1]C3, 2, FALSE), """"))"
        ''=IF(COUNTIF($C$2:C2, C2)=1, MAX($B$1:B1)+1, IFERROR(VLOOKUP(C2, $B$1:$C1, 2, FALSE), ""))
-    Columns(FindColumnIndex("연번")).Select
-    Selection.ColumnWidth = 2.25 ''열 너비 조정
+
     
-    ''''각 행에 줄긋기
-    Range("A1:O1").Select
-    Range(Selection, Selection.End(xlDown)).Select ''컨트롤 방향키 아래
     
+    ''''사은품 작업
+    '사은품 열 추가
+    additionalInfo = FindColumnIndex("주문서추가항목")
+    Columns(additionalInfo).Select
+    Selection.EntireColumn.Insert , CopyOrigin:=xlFormatFromLeftOrAbove
+    Cells(1, additionalInfo).Value = "사은품"
+    
+    '주문서추가항목을 선택안했을 경우 회원정보 중 반려동물 종류 입력한 것을 가져오기
+    petTypeToLetter = "$" & FindColumnIndex("견묘종", 1) & "2"
+    additionalInfoToLetter = "$" & FindColumnIndex("주문서추가항목", 1) & "2"
+    Cells(2, additionalInfo).Formula = "=IF(ISBLANK(" & additionalInfoToLetter & "), " & petTypeToLetter & ", " & additionalInfoToLetter & ")"
+    
+    '회원등급이 SILVER, FAMILY, LALA인 회원의 사은품 셀의 폰트를 굵게 바꾸기(조건부서식)
+    gift = FindColumnIndex("사은품")
+    Columns(gift).Select
+    memberGradeToLetter = "$" & FindColumnIndex("회원등급", 1) & "1"
+    Selection.FormatConditions.Add Type:=xlExpression, Formula1:= _
+        "=OR(" & memberGradeToLetter & "=""SILVER"", " & memberGradeToLetter & "=""LALA"", " & memberGradeToLetter & "=""FAMILY"")"
+    Selection.FormatConditions(Selection.FormatConditions.count).SetFirstPriority
+    With Selection.FormatConditions(1).Font
+        .Bold = True
+        .Italic = False
+        .TintAndShade = 0
+    End With
+    Selection.FormatConditions(1).StopIfTrue = False
+    
+ 
+    ''''함수가 적용된 열들 맨 밑행까지 자동채우기
+    ''자동채우기 적용할 열
+   ' cols = Array("B", "O", "Q", "S")
+    cols = Array(FindColumnIndex("연번", 1), FindColumnIndex("사은품", 1), FindColumnIndex("박스", 1), FindColumnIndex("총중량", 1), FindColumnIndex("주문건별 총중량", 1))
+    
+    For i = LBound(cols) To UBound(cols) ' 각 열에 대해 AutoFill 수행
+        '' 시작 셀 선택
+        Range(cols(i) & 2).Select
+        '' 범위 설정 및 AutoFill 수행
+        Selection.AutoFill Destination:=Range(cols(i) & 2 & ":" & cols(i) & lastRow), Type:=xlFillDefault
+    Next i
+    
+    ''''각 열의 너비 조절
+    Columns(FindColumnIndex("연번")).ColumnWidth = 2.25
+    Columns(FindColumnIndex("매출경로")).ColumnWidth = 0
+    Columns(FindColumnIndex("주문번호")).ColumnWidth = 8.13
+    Columns(FindColumnIndex("주문자")).ColumnWidth = 6
+    Columns(FindColumnIndex("브랜드")).ColumnWidth = 0
+    Columns(FindColumnIndex("상품명")).ColumnWidth = 30
+    Columns(FindColumnIndex("옵션")).ColumnWidth = 9
+    Columns(FindColumnIndex("수량")).ColumnWidth = 3 ''세자리수 보이기위해
+    Columns(FindColumnIndex("수령인")).ColumnWidth = 6
+    Columns(FindColumnIndex("사은품")).ColumnWidth = 6
+    Columns(FindColumnIndex("주문서추가항목")).ColumnWidth = 0
+    Columns(FindColumnIndex("회원등급")).ColumnWidth = 0
+    Columns(FindColumnIndex("견묘종")).ColumnWidth = 0
+    Columns(FindColumnIndex("가격")).ColumnWidth = 8
+    Columns(FindColumnIndex("주문 상태")).ColumnWidth = 0
+    Columns(FindColumnIndex("주소")).ColumnWidth = 29
+    Columns(FindColumnIndex("배송메시지")).ColumnWidth = 13
+    Columns(FindColumnIndex("박스")).ColumnWidth = 3.2
+    Columns(FindColumnIndex("정기배송 회차")).ColumnWidth = 0
+    Columns(FindColumnIndex("상품코드")).ColumnWidth = 0
+   ' Columns(FindColumnIndex("상품명(관리용)")).ColumnWidth = 20
+    
+    
+    ''''행높이 자동맞춤(반드시 각 열의 너비 조절 후에 해야함)
+    Dim lastCol As Long
+    lastCol = Cells(1, Columns.count).End(xlToLeft).Column
+    Dim orderListRange As Range
+    Set orderListRange = Range(Cells(1, 1), Cells(lastRow, lastCol))
+    orderListRange.Select
+    With Selection
+        .HorizontalAlignment = xlGeneral
+        .VerticalAlignment = xlCenter
+        .WrapText = True
+        .Orientation = 0
+        .AddIndent = False
+        .IndentLevel = 0
+        .ShrinkToFit = False
+        .ReadingOrder = xlContext
+        .MergeCells = False
+    End With
+    
+    '사은품만 가운데정렬
+    Columns(gift).Select
+    With Selection
+        .HorizontalAlignment = xlCenter
+        .VerticalAlignment = xlCenter
+        .Orientation = 0
+        .AddIndent = False
+        .IndentLevel = 0
+        .ShrinkToFit = False
+        .ReadingOrder = xlContext
+        .MergeCells = False
+    End With
+
+
+    ''''행 선긋기
+    '주문데이터가 있는 셀 전체선택
+    orderListRange.Select
+    '서식적용
     Selection.Borders(xlDiagonalDown).LineStyle = xlNone
     Selection.Borders(xlDiagonalUp).LineStyle = xlNone
     Selection.Borders(xlEdgeLeft).LineStyle = xlNone
@@ -408,21 +459,8 @@ Sub 전채널주문리스트()
         .weight = xlThin
     End With
     
-    
-    ''''함수가 적용된 열들 맨 밑행까지 자동채우기
-    ''자동채우기 적용할 열
-   ' cols = Array("B", "O", "Q", "S")
-    cols = Array(FindColumnIndex("연번", 1), FindColumnIndex("사은품", 1), FindColumnIndex("박스", 1), FindColumnIndex("총중량", 1), FindColumnIndex("주문건별 총중량", 1))
-    
-    For i = LBound(cols) To UBound(cols) ' 각 열에 대해 AutoFill 수행
-        '' 시작 셀 선택
-        Range(cols(i) & 2).Select
-        '' 범위 설정 및 AutoFill 수행
-        Selection.AutoFill Destination:=Range(cols(i) & 2 & ":" & cols(i) & lastRow), Type:=xlFillDefault
-    Next i
- 
-    
-
+    ''''첫 행(헤더) 볼드체로
+    Rows(1).Font.Bold = True
     
     Range("B1").Select
 End Sub
