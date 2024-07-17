@@ -50,16 +50,21 @@ Sub 전채널주문리스트()
     Dim lastRow As Long
     
     Dim salesChannel As Long '매출경로
+    Dim salesChannelToLetter As String
     Dim orderNumber As Long '주문번호
+    Dim orderNumberToLetter As String
     Dim customerName As Long '주문자명
+    Dim customerNameToLetter As String
     Dim brand As Long '브랜드
     Dim productName As Long '상품명(한국어 쇼핑몰)
+    Dim productNameToLetter As String
     Dim productOption As Long '상품옵션
     Dim productOptionToLetter As String
     Dim quantity As Long '수량
     Dim quantityToLetter As String
     Dim recipient As Long '수령인
     Dim gift As Long '사은품
+    Dim giftToLetter As String
     Dim additionalInfo As Long '주문서추가항목01_사은품 선택 (공통입력사항)
     Dim additionalInfoToLetter As String
     Dim price As Long '옵션+판매가
@@ -69,6 +74,7 @@ Sub 전채널주문리스트()
     Dim weight As Long '중량
     Dim weightToLetter As String
     Dim regularDelivery As Long '정기배송 회차
+    Dim regularDeliveryToLetter As String
     Dim productCode As Long '상품코드
     Dim petType As Long '회원추가항목_반려견/반려묘의 종류
     Dim petTypeToLetter As String
