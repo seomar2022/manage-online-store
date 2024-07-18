@@ -78,8 +78,10 @@ Sub 전채널주문리스트()
     Dim productCode As Long '상품코드
     Dim petType As Long '회원추가항목_반려견/반려묘의 종류
     Dim petTypeToLetter As String
-    Dim memberGrade As Long '회원등급
+    Dim memberGrade As Long '주문 시 회원등급
     Dim memberGradeToLetter As String
+    Dim totalWeight As Long '총중량
+    Dim totalWeightToLetter As String
      
     ''가장 마지막행 찾기.
     lastRow = ActiveSheet.Cells(ActiveSheet.Rows.count, "A").End(xlUp).row
@@ -98,14 +100,17 @@ Sub 전채널주문리스트()
     Cells.Replace What:="회원추가항목_반려견/반려묘의 종류", Replacement:="견묘종", LookAt:=xlPart, SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, ReplaceFormat:=False
   
     
-    Columns("I:I").Select
+    Columns(FindColumnIndex("주문서추가항목")).Select
     Selection.Replace What:="강아지용", Replacement:="독", LookAt:=xlPart, SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, ReplaceFormat:=False
     Selection.Replace What:="고양이용", Replacement:="캣", LookAt:=xlPart, SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, ReplaceFormat:=False
+    
+    
+    salesChannelToLetter = "$" & FindColumnIndex("매출경로", 1) & "1"
     
     '''' 주문채널별로 주문자 이름 셀에 색채우기. 카페24주문은 채우기 없음.
     Columns(FindColumnIndex("주문자")).Select
     Selection.FormatConditions.Add Type:=xlExpression, Formula1:= _
-        "=SEARCH(""카카오톡 스토어"", $A1)"
+        "=SEARCH(""카카오톡 스토어"", " & salesChannelToLetter & ")"
     Selection.FormatConditions(Selection.FormatConditions.count).SetFirstPriority
     With Selection.FormatConditions(1).Interior
         .PatternColorIndex = xlAutomatic
@@ -115,7 +120,7 @@ Sub 전채널주문리스트()
     Selection.FormatConditions(1).StopIfTrue = False
     
     Selection.FormatConditions.Add Type:=xlExpression, Formula1:= _
-        "=SEARCH(""스마트스토어"", $A1)"
+        "=SEARCH(""스마트스토어"",  " & salesChannelToLetter & ")"
     Selection.FormatConditions(Selection.FormatConditions.count).SetFirstPriority
     With Selection.FormatConditions(1).Interior
         .PatternColorIndex = xlAutomatic
@@ -124,7 +129,7 @@ Sub 전채널주문리스트()
     End With
     Selection.FormatConditions(1).StopIfTrue = False
     
-    Selection.FormatConditions.Add Type:=xlExpression, Formula1:="=$A1=""쿠팡"""
+    Selection.FormatConditions.Add Type:=xlExpression, Formula1:="=" & salesChannelToLetter & "=""쿠팡"""
     Selection.FormatConditions(Selection.FormatConditions.count).SetFirstPriority
     With Selection.FormatConditions(1).Interior
         .PatternColorIndex = xlAutomatic
@@ -271,7 +276,7 @@ Sub 전채널주문리스트()
    weightToLetter = "$" & FindColumnIndex("중량", 1) & "2"
    productOptionToLetter = "$" & FindColumnIndex("옵션", 1) & "2"
    quantityToLetter = "$" & FindColumnIndex("수량", 1) & "2"
-     Cells(2, FindColumnIndex("총중량")).Formula = "=IF(ISBLANK(" & weightToLetter & "), ""왼쪽에 중량 쓰기"", IF(IFERROR(FIND(""중량"", " & productOptionToLetter & "), 0), MID(" & productOptionToLetter & ", SEARCH(""="", " & productOptionToLetter & ") + 1, SEARCH(""kg""," & productOptionToLetter & ") - SEARCH(""="", " & productOptionToLetter & ") - 1), " & weightToLetter & ")  * " & quantityToLetter & ")"
+   Cells(2, FindColumnIndex("총중량")).Formula = "=IF(ISBLANK(" & weightToLetter & "), ""왼쪽에 중량 쓰기"", IF(IFERROR(FIND(""중량"", " & productOptionToLetter & "), 0), MID(" & productOptionToLetter & ", SEARCH(""="", " & productOptionToLetter & ") + 1, SEARCH(""kg""," & productOptionToLetter & ") - SEARCH(""="", " & productOptionToLetter & ") - 1), " & weightToLetter & ")  * " & quantityToLetter & ")"
     
    ' ActiveCell.FormulaR1C1 = _
       '  "=IF(ISBLANK(RC15), ""왼쪽에 중량 쓰기"", IF(IFERROR(FIND(""중량"", RC6), 0), MID(RC6, SEARCH(""="", RC6) + 1, SEARCH(""kg"",RC6) - SEARCH(""="", RC6) - 1), RC15)  * RC[-9])"
@@ -286,22 +291,18 @@ Sub 전채널주문리스트()
     Selection.EntireColumn.Insert , CopyOrigin:=xlFormatFromLeftOrAbove
     Cells(1, FindColumnIndex("정기배송 회차") + 1).Select
     ActiveCell.FormulaR1C1 = "주문건별 총중량"
-   Cells(2, FindColumnIndex("주문건별 총중량")).Select
    
-   '''''''''''''''''''''''''여기 고쳐야함'''''''''''''''''''''''''''''
-    ActiveCell.FormulaR1C1 = _
-        "=IF(COUNTIF(R2C[-16]:RC2, RC[-16])=COUNTIF(R2C2:R1000C2, RC[-16]), SUMIF(R2C2:R1000C2, RC[-16], R2C16:R1000C16), """")"
-        '=IF(COUNTIF(A$2:$D2, A2)=COUNTIF($D$2:$D$1000, A2), SUMIF($D$2:$D$1000, A2, $Q$2:$Q$1000), "")
-     
+
+    orderNumberToLetter = FindColumnIndex("주문번호", 1)
+    totalWeightToLetter = FindColumnIndex("총중량", 1)
+    Cells(2, FindColumnIndex("주문건별 총중량")).Formula = _
+        "=IF(COUNTIF(" & orderNumberToLetter & "$2:$" & orderNumberToLetter & "2, " & orderNumberToLetter & "2) = COUNTIF($" & orderNumberToLetter & "$2:$" & orderNumberToLetter & "$" & lastRow & ", " & orderNumberToLetter & "2), SUMIF($" & orderNumberToLetter & "$2:$" & orderNumberToLetter & "$" & lastRow & ", " & orderNumberToLetter & "2, " & totalWeightToLetter & "$2:$" & totalWeightToLetter & "$" & lastRow & "), """")"
+        '=IF(COUNTIF(C$2:$C2, C2)=COUNTIF($C$2:$C$1000, C2), SUMIF($C$2:$C$1000, C2, $R$2:$R$1000), "")
      
     
      ''''총 중량별 박스 크기를 지정하는 함수
-     'Range("N2").Select
-   '  ActiveCell.FormulaR1C1 = "=IF(RC15>0, IF(RC15<1, 73, IF(RC15<2, 194, IF(RC15<4, 41, """"))), """")"
-   '  ActiveCell.FormulaR1C1 = "=IF(RC18<1, 73, IF(RC18<2, 194, IF(RC18<3.8, 41, IF(RC18<=4, 420,IF(RC18<=4.3, 104 ,IF(RC18<8, 170,""↓""))))))"
-                            '''=IF($S2<1,73,IF($S2<2,194,IF($S2<4,41,IF($S2=4,420,IF($S2<4.3,104,IF($S2<5,170,"-"))))))
     colLetter = "$" & FindColumnIndex("주문건별 총중량", 1) & "2"  '-> $R2
-    Cells(2, FindColumnIndex("박스")).Formula = "=IF(" & colLetter & "<1, 73, IF(" & colLetter & "<2, 194, IF(" & colLetter & "<3.8, 41, IF(" & colLetter & "<=4, 420,IF(" & colLetter & "<=4.3, 104 ,IF(" & colLetter & "<8, 170,""↓""))))))"
+    Cells(2, FindColumnIndex("박스")).Formula = "=IF(" & colLetter & "<1, 73, IF(" & colLetter & "<2, 194, IF(" & colLetter & "<3.8, 41, IF(" & colLetter & "<=4, IF(AND($" & FindColumnIndex("브랜드", 1) & "2=""로얄캐닌"", $" & FindColumnIndex("수량", 1) & "2=2),104, 420),IF(" & colLetter & "<=4.3, 104 ,IF(" & colLetter & "<8, 170,""↓""))))))"
 
     ''변수 선언
     Dim criteriaRange As String
@@ -367,7 +368,7 @@ Sub 전채널주문리스트()
     '회원등급이 SILVER, FAMILY, LALA인 회원의 사은품 셀의 폰트를 굵게 바꾸기(조건부서식)
     gift = FindColumnIndex("사은품")
     Columns(gift).Select
-    memberGradeToLetter = "$" & FindColumnIndex("회원등급", 1) & "1"
+    memberGradeToLetter = "$" & FindColumnIndex("주문 시 회원등급", 1) & "1"
     Selection.FormatConditions.Add Type:=xlExpression, Formula1:= _
         "=OR(" & memberGradeToLetter & "=""SILVER"", " & memberGradeToLetter & "=""LALA"", " & memberGradeToLetter & "=""FAMILY"")"
     Selection.FormatConditions(Selection.FormatConditions.count).SetFirstPriority
@@ -380,14 +381,13 @@ Sub 전채널주문리스트()
     
  
     ''''함수가 적용된 열들 맨 밑행까지 자동채우기
-    ''자동채우기 적용할 열
-   ' cols = Array("B", "O", "Q", "S")
+    '자동채우기 적용할 열
     cols = Array(FindColumnIndex("연번", 1), FindColumnIndex("사은품", 1), FindColumnIndex("박스", 1), FindColumnIndex("총중량", 1), FindColumnIndex("주문건별 총중량", 1))
     
     For i = LBound(cols) To UBound(cols) ' 각 열에 대해 AutoFill 수행
-        '' 시작 셀 선택
+        ' 시작 셀 선택
         Range(cols(i) & 2).Select
-        '' 범위 설정 및 AutoFill 수행
+        ' 범위 설정 및 AutoFill 수행
         Selection.AutoFill Destination:=Range(cols(i) & 2 & ":" & cols(i) & lastRow), Type:=xlFillDefault
     Next i
     
@@ -403,7 +403,7 @@ Sub 전채널주문리스트()
     Columns(FindColumnIndex("수령인")).ColumnWidth = 6
     Columns(FindColumnIndex("사은품")).ColumnWidth = 6
     Columns(FindColumnIndex("주문서추가항목")).ColumnWidth = 0
-    Columns(FindColumnIndex("회원등급")).ColumnWidth = 0
+    Columns(FindColumnIndex("주문 시 회원등급")).ColumnWidth = 0
     Columns(FindColumnIndex("견묘종")).ColumnWidth = 0
     Columns(FindColumnIndex("가격")).ColumnWidth = 8
     Columns(FindColumnIndex("주문 상태")).ColumnWidth = 0
@@ -468,5 +468,5 @@ Sub 전채널주문리스트()
     ''''첫 행(헤더) 볼드체로
     Rows(1).Font.Bold = True
     
-    Range("B1").Select
+    Range("A1").Select
 End Sub
