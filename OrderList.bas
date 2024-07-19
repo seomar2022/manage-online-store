@@ -51,8 +51,10 @@ Sub 전채널주문리스트()
     
     Dim salesChannel As Long '매출경로
     Dim salesChannelToLetter As String
-    Dim orderNumber As Long '주문번호
-    Dim orderNumberToLetter As String
+    Dim serialNum As Long '연번
+    Dim serialNumToLetter As String
+    Dim orderNum As Long '주문번호
+    Dim orderNumToLetter As String
     Dim customerName As Long '주문자명
     Dim customerNameToLetter As String
     Dim brand As Long '브랜드
@@ -87,8 +89,6 @@ Sub 전채널주문리스트()
     lastRow = ActiveSheet.Cells(ActiveSheet.Rows.count, "A").End(xlUp).row
     
  
-    
-    
     ''''열 해더명 바꾸기
     Cells.Replace What:="주문자명", Replacement:="주문자", LookAt:=xlPart, SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, ReplaceFormat:=False
     Cells.Replace What:="상품명(한국어 쇼핑몰)", Replacement:="상품명", LookAt:=xlPart, SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, ReplaceFormat:=False
@@ -107,7 +107,7 @@ Sub 전채널주문리스트()
     
     salesChannelToLetter = "$" & FindColumnIndex("매출경로", 1) & "1"
     
-    '''' 주문채널별로 주문자 이름 셀에 색채우기. 카페24주문은 채우기 없음.
+    ''''주문채널별로 주문자 이름 셀에 색채우기. 카페24주문은 채우기 없음.
     Columns(FindColumnIndex("주문자")).Select
     Selection.FormatConditions.Add Type:=xlExpression, Formula1:= _
         "=SEARCH(""카카오톡 스토어"", " & salesChannelToLetter & ")"
@@ -163,12 +163,9 @@ Sub 전채널주문리스트()
   
     '''2개이상의 상품 주문 시 주문번호 회색으로 채움
     Columns(FindColumnIndex("주문번호")).Select
-    Dim colLetter As String
-    colLetter = "$" & FindColumnIndex("주문번호", 1)
-   ' Selection.FormatConditions.Add Type:=xlExpression, Formula1:="=COUNTIF($B:$B, $B1) > 1"
-
-     Selection.FormatConditions.Add Type:=xlExpression, Formula1:= _
-        "=COUNTIF(" & colLetter & ":" & colLetter & ", " & colLetter & "1) > 1"
+    orderNumToLetter = "$" & FindColumnIndex("주문번호", 1)
+    Selection.FormatConditions.Add Type:=xlExpression, Formula1:= _
+        "=COUNTIF(" & orderNumToLetter & ":" & orderNumToLetter & ", " & orderNumToLetter & "1) > 1"
         
     Selection.FormatConditions(Selection.FormatConditions.count).SetFirstPriority
     With Selection.FormatConditions(1).Interior
@@ -177,14 +174,13 @@ Sub 전채널주문리스트()
         .TintAndShade = 0
     End With
     Selection.FormatConditions(1).StopIfTrue = False
-   ' Range("B1").Select
     ActiveWindow.View = xlPageLayoutView
 
     
     ''''시트 이름바꾸기
     ActiveSheet.Name = "주문리스트"
     
-    ''''프린트 설정 시작
+    ''''프린트 설정
     Sheets("주문리스트").Select
         Application.CutCopyMode = False
     Application.PrintCommunication = False
@@ -241,15 +237,12 @@ Sub 전채널주문리스트()
     End With
     Application.PrintCommunication = True
     ActiveWindow.View = xlNormalView
-    ''''프린트 설정 끝
     
     
     ''''정기배송건의 상품명을 하늘색으로 채우기.
-    'Range("D2:F2").Select
     Cells(2, FindColumnIndex("상품명")).Select
     Range(Selection, Selection.End(xlDown)).Select
     ActiveWindow.SmallScroll Down:=0
-   ' Selection.FormatConditions.Add Type:=xlExpression, Formula1:="=$P2 >=1"
     colLetter = FindColumnIndex("정기배송 회차", 1)
     Selection.FormatConditions.Add Type:=xlExpression, Formula1:="=$" & colLetter & "2 >=1"
     Selection.FormatConditions(Selection.FormatConditions.count).SetFirstPriority
@@ -259,20 +252,15 @@ Sub 전채널주문리스트()
         .TintAndShade = 0.599963377788629
     End With
     Selection.FormatConditions(1).StopIfTrue = False
-  '  ActiveWindow.SmallScroll Down:=-30
 
     
     ''''********************************************************박스통계 시작*********************************************************************'''''
     '''' 행별 총중량 구하기. (옵션에 중량있으면 거기서 숫자만 가져오기. 없으면 중량열에서 가져오기)
     ''Q열 왼쪽쪽에 열 삽입해서 박스열 추가.
-   ' Range("P1").Select
     Columns(FindColumnIndex("정기배송 회차")).Select
     Selection.EntireColumn.Insert , CopyOrigin:=xlFormatFromLeftOrAbove
     Cells(1, FindColumnIndex("정기배송 회차") - 1).Value = "총중량"
     
-    
-   ' Cells(2, FindColumnIndex("총중량")).Select
-   ' colLetter = FindColumnIndex("총중량", 1)
    weightToLetter = "$" & FindColumnIndex("중량", 1) & "2"
    productOptionToLetter = "$" & FindColumnIndex("옵션", 1) & "2"
    quantityToLetter = "$" & FindColumnIndex("수량", 1) & "2"
@@ -280,9 +268,7 @@ Sub 전채널주문리스트()
     
    ' ActiveCell.FormulaR1C1 = _
       '  "=IF(ISBLANK(RC15), ""왼쪽에 중량 쓰기"", IF(IFERROR(FIND(""중량"", RC6), 0), MID(RC6, SEARCH(""="", RC6) + 1, SEARCH(""kg"",RC6) - SEARCH(""="", RC6) - 1), RC15)  * RC[-9])"
-        ''=IF(IFERROR(FIND("중량", $G2), 0), MID(G2, SEARCH("=", G2) + 1, SEARCH("kg", G2) - SEARCH("=", G2) - 1), $O2)  * I2
        ''RC숫자는 현재 셀을 기준으로 행과열을 몇개나 움직이는지를 알려주는 방식으로 셀의 위치를 표시하는 듯. 근데 양수는 $를 붙이는데 음수는 $가 안붙는거 같다.
-    '    "=IF(ISBLANK(RC15), ""왼쪽에 중량 쓰기"", IF(IFERROR(FIND(""중량"", RC6), 0), MID(RC6, SEARCH(""="", RC6) + 1, SEARCH(""kg"",RC6) - SEARCH(""="", RC6) - 1), RC15)  * RC[-9])"
        
         
      
@@ -293,10 +279,10 @@ Sub 전채널주문리스트()
     ActiveCell.FormulaR1C1 = "주문건별 총중량"
    
 
-    orderNumberToLetter = FindColumnIndex("주문번호", 1)
+    orderNumToLetter = FindColumnIndex("주문번호", 1)
     totalWeightToLetter = FindColumnIndex("총중량", 1)
     Cells(2, FindColumnIndex("주문건별 총중량")).Formula = _
-        "=IF(COUNTIF(" & orderNumberToLetter & "$2:$" & orderNumberToLetter & "2, " & orderNumberToLetter & "2) = COUNTIF($" & orderNumberToLetter & "$2:$" & orderNumberToLetter & "$" & lastRow & ", " & orderNumberToLetter & "2), SUMIF($" & orderNumberToLetter & "$2:$" & orderNumberToLetter & "$" & lastRow & ", " & orderNumberToLetter & "2, " & totalWeightToLetter & "$2:$" & totalWeightToLetter & "$" & lastRow & "), """")"
+        "=IF(COUNTIF(" & orderNumToLetter & "$2:$" & orderNumToLetter & "2, " & orderNumToLetter & "2) = COUNTIF($" & orderNumToLetter & "$2:$" & orderNumToLetter & "$" & lastRow & ", " & orderNumToLetter & "2), SUMIF($" & orderNumToLetter & "$2:$" & orderNumToLetter & "$" & lastRow & ", " & orderNumToLetter & "2, " & totalWeightToLetter & "$2:$" & totalWeightToLetter & "$" & lastRow & "), """")"
         '=IF(COUNTIF(C$2:$C2, C2)=COUNTIF($C$2:$C$1000, C2), SUMIF($C$2:$C$1000, C2, $R$2:$R$1000), "")
      
     
@@ -347,10 +333,12 @@ Sub 전채널주문리스트()
     Cells(1, FindColumnIndex("주문번호") - 1).Select
     ActiveCell.FormulaR1C1 = "연번"
     Cells(2, FindColumnIndex("연번")).Select
-    ActiveCell.FormulaR1C1 = _
-        "=IF(COUNTIF(R2C3:RC[1], RC[1])=1, MAX(R1C2:R[-1]C)+1, IFERROR(VLOOKUP(RC[1], R1C2:R[-1]C3, 2, FALSE), """"))"
-       ''=IF(COUNTIF($C$2:C2, C2)=1, MAX($B$1:B1)+1, IFERROR(VLOOKUP(C2, $B$1:$C1, 2, FALSE), ""))
-
+    
+    serialNumToLetter = "$" & FindColumnIndex("연번", 1)
+    orderNumToLetter = "$" & FindColumnIndex("주문번호", 1)
+    
+    Cells(2, FindColumnIndex("연번")).Formula = _
+        "=IF(COUNTIF(" & orderNumToLetter & "$2:" & orderNumToLetter & "2, " & orderNumToLetter & "2)=1, MAX(" & serialNumToLetter & "$1:" & serialNumToLetter & "1)+1, IFERROR(VLOOKUP(" & orderNumToLetter & "2, " & serialNumToLetter & "$1:" & orderNumToLetter & "1, 2, FALSE), """"))"
     
     
     ''''사은품 작업
