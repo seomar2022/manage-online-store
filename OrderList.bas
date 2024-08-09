@@ -113,9 +113,8 @@ Sub 전채널주문리스트()
         "=SEARCH(""카카오톡 스토어"", " & salesChannelToLetter & ")"
     Selection.FormatConditions(Selection.FormatConditions.count).SetFirstPriority
     With Selection.FormatConditions(1).Interior
-        .PatternColorIndex = xlAutomatic
-        .ThemeColor = xlThemeColorAccent4
-        .TintAndShade = 0.799981688894314
+         .PatternColorIndex = xlAutomatic
+         .Color = RGB(246, 236, 191)
     End With
     Selection.FormatConditions(1).StopIfTrue = False
     
@@ -124,8 +123,7 @@ Sub 전채널주문리스트()
     Selection.FormatConditions(Selection.FormatConditions.count).SetFirstPriority
     With Selection.FormatConditions(1).Interior
         .PatternColorIndex = xlAutomatic
-        .ThemeColor = xlThemeColorAccent6
-        .TintAndShade = 0.799981688894314
+        .Color = RGB(176, 230, 173)
     End With
     Selection.FormatConditions(1).StopIfTrue = False
     
@@ -133,8 +131,7 @@ Sub 전채널주문리스트()
     Selection.FormatConditions(Selection.FormatConditions.count).SetFirstPriority
     With Selection.FormatConditions(1).Interior
         .PatternColorIndex = xlAutomatic
-        .Color = 9408511
-        .TintAndShade = 0
+        .Color = RGB(255, 119, 119)
     End With
     Selection.FormatConditions(1).StopIfTrue = False
     
@@ -163,6 +160,7 @@ Sub 전채널주문리스트()
   
     '''2개이상의 상품 주문 시 주문번호 회색으로 채움
     Columns(FindColumnIndex("주문번호")).Select
+  
     orderNumToLetter = "$" & FindColumnIndex("주문번호", 1)
     Selection.FormatConditions.Add Type:=xlExpression, Formula1:= _
         "=COUNTIF(" & orderNumToLetter & ":" & orderNumToLetter & ", " & orderNumToLetter & "1) > 1"
@@ -170,8 +168,7 @@ Sub 전채널주문리스트()
     Selection.FormatConditions(Selection.FormatConditions.count).SetFirstPriority
     With Selection.FormatConditions(1).Interior
         .PatternColorIndex = xlAutomatic
-        .ThemeColor = xlThemeColorDark2
-        .TintAndShade = 0
+        .Color = RGB(242, 242, 242)
     End With
     Selection.FormatConditions(1).StopIfTrue = False
     ActiveWindow.View = xlPageLayoutView
@@ -179,64 +176,6 @@ Sub 전채널주문리스트()
     
     ''''시트 이름바꾸기
     ActiveSheet.Name = "주문리스트"
-    
-    ''''프린트 설정
-    Sheets("주문리스트").Select
-        Application.CutCopyMode = False
-    Application.PrintCommunication = False
-    With ActiveSheet.PageSetup
-        .PrintTitleRows = "$1:$1" ''1행을 반복해서 프린트하기
-        .PrintTitleColumns = ""
-    End With
-    Application.PrintCommunication = True
-    ActiveSheet.PageSetup.PrintArea = ""
-    Application.PrintCommunication = False
-    With ActiveSheet.PageSetup
-        .LeftHeader = "&D &T"
-        .CenterHeader = "전채널 주문 리스트"
-        .RightHeader = "&P/&N"
-        .LeftFooter = ""
-        .CenterFooter = ""
-        .RightFooter = ""
-        .LeftMargin = Application.InchesToPoints(0.25)
-        .RightMargin = Application.InchesToPoints(0.25)
-        .TopMargin = Application.InchesToPoints(0.75)
-        .BottomMargin = Application.InchesToPoints(0.75)
-        .HeaderMargin = Application.InchesToPoints(0.3)
-        .FooterMargin = Application.InchesToPoints(0.3)
-        .PrintHeadings = False
-        .PrintGridlines = False
-        .PrintComments = xlPrintSheetEnd
-        .PrintQuality = 600
-        .CenterHorizontally = False
-        .CenterVertically = False
-        .Orientation = xlLandscape
-        .Draft = False
-        .PaperSize = xlPaperA4
-        .FirstPageNumber = xlAutomatic
-        .Order = xlDownThenOver
-        .BlackAndWhite = False
-        .Zoom = 100
-        .PrintErrors = xlPrintErrorsDisplayed
-        .OddAndEvenPagesHeaderFooter = False
-        .DifferentFirstPageHeaderFooter = False
-        .ScaleWithDocHeaderFooter = True
-        .AlignMarginsHeaderFooter = True
-        .EvenPage.LeftHeader.Text = ""
-        .EvenPage.CenterHeader.Text = ""
-        .EvenPage.RightHeader.Text = ""
-        .EvenPage.LeftFooter.Text = ""
-        .EvenPage.CenterFooter.Text = ""
-        .EvenPage.RightFooter.Text = ""
-        .FirstPage.LeftHeader.Text = ""
-        .FirstPage.CenterHeader.Text = ""
-        .FirstPage.RightHeader.Text = ""
-        .FirstPage.LeftFooter.Text = ""
-        .FirstPage.CenterFooter.Text = ""
-        .FirstPage.RightFooter.Text = ""
-    End With
-    Application.PrintCommunication = True
-    ActiveWindow.View = xlNormalView
     
     
     ''''정기배송건의 상품명을 하늘색으로 채우기.
@@ -268,6 +207,7 @@ Sub 전채널주문리스트()
     
    ' ActiveCell.FormulaR1C1 = _
       '  "=IF(ISBLANK(RC15), ""왼쪽에 중량 쓰기"", IF(IFERROR(FIND(""중량"", RC6), 0), MID(RC6, SEARCH(""="", RC6) + 1, SEARCH(""kg"",RC6) - SEARCH(""="", RC6) - 1), RC15)  * RC[-9])"
+        ''=IF(IFERROR(FIND("중량", $G2), 0), MID(G2, SEARCH("=", G2) + 1, SEARCH("kg", G2) - SEARCH("=", G2) - 1), $O2)  * I2
        ''RC숫자는 현재 셀을 기준으로 행과열을 몇개나 움직이는지를 알려주는 방식으로 셀의 위치를 표시하는 듯. 근데 양수는 $를 붙이는데 음수는 $가 안붙는거 같다.
        
         
@@ -355,7 +295,7 @@ Sub 전채널주문리스트()
     
     '회원등급이 SILVER, FAMILY, LALA인 회원의 사은품 셀의 폰트를 굵게 바꾸기(조건부서식)
     gift = FindColumnIndex("사은품")
-    Columns(gift).Select
+    Columns(선물).Select
     memberGradeToLetter = "$" & FindColumnIndex("주문 시 회원등급", 1) & "1"
     Selection.FormatConditions.Add Type:=xlExpression, Formula1:= _
         "=OR(" & memberGradeToLetter & "=""SILVER"", " & memberGradeToLetter & "=""LALA"", " & memberGradeToLetter & "=""FAMILY"")"
@@ -369,15 +309,21 @@ Sub 전채널주문리스트()
     
  
     ''''함수가 적용된 열들 맨 밑행까지 자동채우기
-    '자동채우기 적용할 열
-    cols = Array(FindColumnIndex("연번", 1), FindColumnIndex("사은품", 1), FindColumnIndex("박스", 1), FindColumnIndex("총중량", 1), FindColumnIndex("주문건별 총중량", 1))
+    ' 주문이 두줄 이상일 때만 AutoFill 수행. 아니면 오류남.
+    If lastRow > 2 Then
+        '자동채우기 적용할 열
+        cols = Array(FindColumnIndex("연번", 1), FindColumnIndex("사은품", 1), FindColumnIndex("박스", 1), FindColumnIndex("총중량", 1), FindColumnIndex("주문건별 총중량", 1))
+        
+        For i = LBound(cols) To UBound(cols) ' 각 열에 대해 AutoFill 수행
+            ' 시작 셀 선택
+            Range(cols(i) & 2).Select
+            ' 범위 설정 및 AutoFill 수행
+            startCell.AutoFill Destination:=Range(cols(i) & 2 & ":" & cols(i) & lastRow), Type:=xlFillDefault
+        Next i
+    End If
     
-    For i = LBound(cols) To UBound(cols) ' 각 열에 대해 AutoFill 수행
-        ' 시작 셀 선택
-        Range(cols(i) & 2).Select
-        ' 범위 설정 및 AutoFill 수행
-        Selection.AutoFill Destination:=Range(cols(i) & 2 & ":" & cols(i) & lastRow), Type:=xlFillDefault
-    Next i
+
+
     
     ''''각 열의 너비 조절
     Columns(FindColumnIndex("연번")).ColumnWidth = 2.25
@@ -422,7 +368,7 @@ Sub 전채널주문리스트()
     End With
     
     '사은품만 가운데정렬
-    Columns(gift).Select
+    Columns(선물).Select
     With Selection
         .HorizontalAlignment = xlCenter
         .VerticalAlignment = xlCenter
@@ -455,6 +401,66 @@ Sub 전채널주문리스트()
     
     ''''첫 행(헤더) 볼드체로
     Rows(1).Font.Bold = True
+    
+    ''''프린트 설정
+    Sheets("주문리스트").Select
+        Application.CutCopyMode = False
+    Application.PrintCommunication = False
+    With ActiveSheet.PageSetup
+        .PrintTitleRows = "$1:$1" ''1행을 반복해서 프린트하기
+        .PrintTitleColumns = ""
+    End With
+    Application.PrintCommunication = True
+    ActiveSheet.PageSetup.PrintArea = ""
+    Application.PrintCommunication = False
+    With ActiveSheet.PageSetup
+        .LeftHeader = "&D &T"
+        .CenterHeader = "전채널 주문 리스트"
+        .RightHeader = "&P/&N"
+        .LeftFooter = ""
+        .CenterFooter = ""
+        .RightFooter = ""
+        .LeftMargin = Application.InchesToPoints(0.25)
+        .RightMargin = Application.InchesToPoints(0.25)
+        .TopMargin = Application.InchesToPoints(0.75)
+        .BottomMargin = Application.InchesToPoints(0.75)
+        .HeaderMargin = Application.InchesToPoints(0.3)
+        .FooterMargin = Application.InchesToPoints(0.3)
+        .PrintHeadings = False
+        .PrintGridlines = False
+        .PrintComments = xlPrintSheetEnd
+        .PrintQuality = 600
+        .CenterHorizontally = False
+        .CenterVertically = False
+        .Orientation = xlLandscape
+        .Draft = False
+        .PaperSize = xlPaperA4
+        .FirstPageNumber = xlAutomatic
+        .Order = xlDownThenOver
+        .BlackAndWhite = False
+        .Zoom = 100
+        .PrintErrors = xlPrintErrorsDisplayed
+        .OddAndEvenPagesHeaderFooter = False
+        .DifferentFirstPageHeaderFooter = False
+        .ScaleWithDocHeaderFooter = True
+        .AlignMarginsHeaderFooter = True
+        .EvenPage.LeftHeader.Text = ""
+        .EvenPage.CenterHeader.Text = ""
+        .EvenPage.RightHeader.Text = ""
+        .EvenPage.LeftFooter.Text = ""
+        .EvenPage.CenterFooter.Text = ""
+        .EvenPage.RightFooter.Text = ""
+        .FirstPage.LeftHeader.Text = ""
+        .FirstPage.CenterHeader.Text = ""
+        .FirstPage.RightHeader.Text = ""
+        .FirstPage.LeftFooter.Text = ""
+        .FirstPage.CenterFooter.Text = ""
+        .FirstPage.RightFooter.Text = ""
+    End With
+    Application.PrintCommunication = True
+    ActiveWindow.View = xlNormalView
+    
+    
     
     Range("A1").Select
 End Sub
