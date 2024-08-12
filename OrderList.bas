@@ -203,7 +203,8 @@ Sub 전채널주문리스트()
    weightToLetter = "$" & FindColumnIndex("중량", 1) & "2"
    productOptionToLetter = "$" & FindColumnIndex("옵션", 1) & "2"
    quantityToLetter = "$" & FindColumnIndex("수량", 1) & "2"
-   Cells(2, FindColumnIndex("총중량")).Formula = "=IF(ISBLANK(" & weightToLetter & "), ""왼쪽에 중량 쓰기"", IF(IFERROR(FIND(""중량"", " & productOptionToLetter & "), 0), MID(" & productOptionToLetter & ", SEARCH(""="", " & productOptionToLetter & ") + 1, SEARCH(""kg""," & productOptionToLetter & ") - SEARCH(""="", " & productOptionToLetter & ") - 1), " & weightToLetter & ")  * " & quantityToLetter & ")"
+  'Cells(2, FindColumnIndex("총중량")).Formula = "=IF(ISBLANK(" & weightToLetter & "), ""왼쪽에 중량 쓰기"", IF(IFERROR(FIND(""중량"", " & productOptionToLetter & "), 0), MID(" & productOptionToLetter & ", SEARCH(""="", " & productOptionToLetter & ") + 1, SEARCH(""kg""," & productOptionToLetter & ") - SEARCH(""="", " & productOptionToLetter & ") - 1), " & weightToLetter & ")  * " & quantityToLetter & ")"
+   Cells(2, FindColumnIndex("총중량")).Formula = "=" & weightToLetter & " * " & quantityToLetter
     
    ' ActiveCell.FormulaR1C1 = _
       '  "=IF(ISBLANK(RC15), ""왼쪽에 중량 쓰기"", IF(IFERROR(FIND(""중량"", RC6), 0), MID(RC6, SEARCH(""="", RC6) + 1, SEARCH(""kg"",RC6) - SEARCH(""="", RC6) - 1), RC15)  * RC[-9])"
@@ -295,7 +296,7 @@ Sub 전채널주문리스트()
     
     '회원등급이 SILVER, FAMILY, LALA인 회원의 사은품 셀의 폰트를 굵게 바꾸기(조건부서식)
     gift = FindColumnIndex("사은품")
-    Columns(선물).Select
+    Columns(gift).Select
     memberGradeToLetter = "$" & FindColumnIndex("주문 시 회원등급", 1) & "1"
     Selection.FormatConditions.Add Type:=xlExpression, Formula1:= _
         "=OR(" & memberGradeToLetter & "=""SILVER"", " & memberGradeToLetter & "=""LALA"", " & memberGradeToLetter & "=""FAMILY"")"
@@ -315,13 +316,14 @@ Sub 전채널주문리스트()
         cols = Array(FindColumnIndex("연번", 1), FindColumnIndex("사은품", 1), FindColumnIndex("박스", 1), FindColumnIndex("총중량", 1), FindColumnIndex("주문건별 총중량", 1))
         
         For i = LBound(cols) To UBound(cols) ' 각 열에 대해 AutoFill 수행
-            ' 시작 셀 선택
-            Range(cols(i) & 2).Select
+            ' 시작 셀 설정
+            Dim startCell As Range
+            Set startCell = Range(cols(i) & 2)
+            
             ' 범위 설정 및 AutoFill 수행
             startCell.AutoFill Destination:=Range(cols(i) & 2 & ":" & cols(i) & lastRow), Type:=xlFillDefault
         Next i
     End If
-    
 
 
     
@@ -368,7 +370,7 @@ Sub 전채널주문리스트()
     End With
     
     '사은품만 가운데정렬
-    Columns(선물).Select
+    Columns(gift).Select
     With Selection
         .HorizontalAlignment = xlCenter
         .VerticalAlignment = xlCenter
